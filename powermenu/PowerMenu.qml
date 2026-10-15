@@ -42,7 +42,7 @@ PanelWindow {
     }
 
     // LayerShell configuration (quickshell-powermenu inherits Hyprland blur + ignorealpha 0.57)
-    WlrLayershell.namespace: "quickshell-powermenu"
+    WlrLayershell.namespace: "quickshell-bar"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
