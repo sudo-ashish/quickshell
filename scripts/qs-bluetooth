@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# qs-bluetooth: Standard Linux / Arch Linux Bluetooth CLI wrapper for quickshell
+
+set -e
+
+cmd="${1:-status}"
+shift || true
+
+case "$cmd" in
+  status)
+    powered="no"
+    show_out=$(bluetoothctl show 2>/dev/null || true)
+    if echo "$show_out" | grep -iq "Powered: yes"; then
+      powered="yes"
+    fi
+    discovering="no"
+    if [[ "$powered" == "yes" ]]; then
+      if echo "$show_out" | grep -iq "Discovering: yes"; then
+        discovering="yes"
+      fi
+    fi
+    echo "powered: $powered"
+    echo "discovering: $discovering"
+    ;;
+
+  power)
+    action="${1:-toggle}"
+    if [[ "$action" == "toggle" ]]; then
+      if bluetoothctl show 2>/dev/null | grep -iq "Powered: yes"; then
+        action="off"
+      else
+        action="on"
+      fi
+    fi
+
+    if [[ "$action" == "on" ]]; then
+      rfkill unblock bluetooth >/dev/null 2>&1 || true
+      bluetoothctl power on >/dev/null 2>&1 || true
+    else
+      bluetoothctl power off >/dev/null 2>&1 || true
+    fi
+    ;;
+
+  scan)
+    timeout="${1:-5}"
+    bluetoothctl --timeout "$timeout" scan on >/dev/null 2>&1 || true
+    ;;
+
+  list)
+    # If bluetooth is turned off, do not query devices
+    if ! bluetoothctl show 2>/dev/null | grep -iq "Powered: yes"; then
+      echo "===CONNECTED==="
+      echo "===PAIRED==="
+      echo "===ALL==="
+      exit 0
+    fi
+
+    echo "===CONNECTED==="
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+      mac=$(echo "$line" | awk '{print $2}')
+      batt=""
+      if [[ -n "$mac" ]]; then
+        info=$(timeout 1s bluetoothctl info "$mac" 2>/dev/null || true)
+        batt=$(echo "$info" | grep -i "Battery Percentage:" | head -n1 | sed -n 's/.*(\([0-9]*\)).*/\1/p')
+        if [[ -z "$batt" ]]; then
+          batt=$(echo "$info" | grep -i "Battery Percentage:" | head -n1 | grep -o '[0-9]\+' || true)
+        fi
+      fi
+      if [[ -n "$batt" ]]; then
+        echo "$line [battery:$batt]"
+      else
+        echo "$line"
+      fi
+    done < <(bluetoothctl devices Connected 2>/dev/null || true)
+
+    echo "===PAIRED==="
+    {
+      timeout 1s bluetoothctl devices Paired 2>/dev/null || true
+      timeout 1s bluetoothctl devices Bonded 2>/dev/null || true
+      timeout 1s bluetoothctl devices Trusted 2>/dev/null || true
+    } | awk '!seen[$2]++'
+    echo "===ALL==="
+    timeout 1s bluetoothctl devices 2>/dev/null || true
+    ;;
+
+  connect)
+    mac="$1"
+    if [[ -n "$mac" ]]; then
+      (bluetoothctl trust "$mac" >/dev/null 2>&1 &)
+      exec bluetoothctl connect "$mac"
+    fi
+    ;;
+
+  disconnect)
+    mac="$1"
+    if [[ -n "$mac" ]]; then
+      exec bluetoothctl disconnect "$mac"
+    fi
+    ;;
+
+  forget|remove)
+    mac="$1"
+    if [[ -n "$mac" ]]; then
+      bluetoothctl disconnect "$mac" >/dev/null 2>&1 || true
+      bluetoothctl remove "$mac" >/dev/null 2>&1 || true
+    fi
+    ;;
+
+  pair)
+    mac="$1"
+    if [[ -n "$mac" ]]; then
+      bluetoothctl trust "$mac" >/dev/null 2>&1 || true
+      bluetoothctl pair "$mac"
+      bluetoothctl trust "$mac" >/dev/null 2>&1 || true
+    fi
+    ;;
+
+  trust-all)
+    {
+      bluetoothctl devices Connected 2>/dev/null || true
+      bluetoothctl devices Paired 2>/dev/null || true
+      bluetoothctl devices Bonded 2>/dev/null || true
+      bluetoothctl devices Trusted 2>/dev/null || true
+    } | awk '{print $2}' | sort -u | while read -r dmac; do
+      [[ -n "$dmac" ]] && bluetoothctl trust "$dmac" >/dev/null 2>&1 || true
+    done
+    ;;
+
+  *)
+    echo "Usage: qs-bluetooth [status|power|scan|list|connect|disconnect|forget|pair|trust-all]" >&2
+    exit 1
+    ;;
+esac

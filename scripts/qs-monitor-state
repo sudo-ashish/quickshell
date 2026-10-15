@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# qs-monitor-state: System-independent monitor state query for quickshell
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PATH="$SCRIPT_DIR:$HOME/.local/bin:$PATH"
+
+monitors_json=$(hyprctl monitors all -j 2>/dev/null || echo "[]")
+if [[ "$monitors_json" == "[]" || -z "$monitors_json" ]]; then
+  # Fallback if hyprctl is not running
+  echo "100"
+  echo "default"
+  echo ""
+  echo "default"
+  echo ""
+  echo "default"
+  echo "1"
+  echo '[{"name":"default","enabled":true,"focused":true,"width":1920,"height":1080}]'
+  exit 0
+fi
+
+focused_monitor=$(echo "$monitors_json" | jq -r '[.[] | select(.focused == true)][0].name // ""' 2>/dev/null || echo "")
+if [[ -z "$focused_monitor" ]]; then
+  focused_monitor=$(echo "$monitors_json" | jq -r '.[0].name // "eDP-1"' 2>/dev/null || echo "eDP-1")
+fi
+
+# Line 0: brightness
+brightness=$(qs-brightness 2>/dev/null || echo "100")
+echo "$brightness"
+
+# Lines 1-4: internal, external, active internal, mirrorOf
+echo "$monitors_json" | jq -r '
+  def internal: test("^(eDP|LVDS|DSI)-");
+  ([.[] | select(.name | internal)][0].name // ""),
+  ([.[] | select((.name | internal) | not)][0].name // ""),
+  ([.[] | select((.name | internal) and .disabled != true)][0].name // ""),
+  ([.[] | select(.mirrorOf != "none") | if (.name | internal) then .mirrorOf else .name end][0] // "")
+' 2>/dev/null || printf "\n\n\n\n"
+
+# Line 5: focused monitor
+echo "$focused_monitor"
+
+# Line 6: scale
+scale=$(echo "$monitors_json" | jq -r --arg f "$focused_monitor" '[.[] | select(.name == $f)][0].scale // 1' 2>/dev/null || echo "1")
+echo "$scale"
+
+# Line 7: displays json
+echo "$monitors_json" | jq -c '[.[] | {name, enabled:(.disabled != true), focused:(.focused == true), width, height}]' 2>/dev/null || echo "[]"

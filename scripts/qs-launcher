@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# qs-launcher: Application and command launcher toggle for QuickShell
+set -euo pipefail
+
+CMD="${1:-toggle}"
+QS_DIR="${QUICKSHELL_DIR:-$HOME/quickshell}"
+
+# Choose CLI binary
+if command -v qs >/dev/null 2>&1; then
+  QS_BIN="qs"
+else
+  QS_BIN="quickshell"
+fi
+
+call_ipc() {
+  local target="$1"; shift
+  local method="$1"; shift
+
+  # Try directly targeting the workspace config first
+  if [[ -d "$QS_DIR" ]] && "$QS_BIN" -p "$QS_DIR" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  # Fallback to standard config location
+  if [[ -d "$HOME/.config/quickshell" ]] && "$QS_BIN" -p "$HOME/.config/quickshell" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  # Fallback to generic default
+  "$QS_BIN" ipc call "$target" "$method" "$@"
+}
+
+case "$CMD" in
+  toggle)
+    call_ipc launcher toggle
+    ;;
+  open)
+    call_ipc launcher open
+    ;;
+  close)
+    call_ipc launcher close
+    ;;
+  apps|run|files|windows)
+    call_ipc launcher setMode "$CMD"
+    call_ipc launcher open
+    ;;
+  search)
+    QUERY="${2:-}"
+    call_ipc launcher search "$QUERY"
+    ;;
+  *)
+    call_ipc launcher toggle
+    ;;
+esac

@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# qs-notifications: QuickShell Desktop Notification Manager & IPC CLI
+# Supports DND toggling, dismissal, test toasts, and drop-in compatibility
+set -euo pipefail
+
+CMD="${1:-help}"
+QS_DIR="${QUICKSHELL_DIR:-$HOME/quickshell}"
+
+# Choose CLI binary
+if command -v qs >/dev/null 2>&1; then
+  QS_BIN="qs"
+else
+  QS_BIN="quickshell"
+fi
+
+call_ipc() {
+  local target="$1"; shift
+  local method="$1"; shift
+
+  if [[ -d "$QS_DIR" ]] && "$QS_BIN" -p "$QS_DIR" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  if [[ -d "$HOME/.config/quickshell" ]] && "$QS_BIN" -p "$HOME/.config/quickshell" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  "$QS_BIN" ipc call "$target" "$method" "$@"
+}
+
+case "$CMD" in
+  toggle-dnd|toggle-silence|dnd)
+    call_ipc notifications toggleDnd
+    ;;
+
+  dnd-status|status)
+    call_ipc notifications dndState
+    ;;
+
+  set-dnd)
+    VAL="${2:-on}"
+    call_ipc notifications setDnd "$VAL"
+    ;;
+
+  dismiss-all|clear)
+    call_ipc notifications dismissAll
+    ;;
+
+  dismiss-one)
+    call_ipc notifications dismissOne
+    ;;
+
+  dismiss)
+    SUMMARY="${2:-}"
+    if [[ -z "$SUMMARY" ]]; then
+      echo "Usage: qs-notifications dismiss <summary>" >&2
+      exit 1
+    fi
+    call_ipc notifications dismiss "$SUMMARY"
+    ;;
+
+  invoke-last)
+    call_ipc notifications invokeLast
+    ;;
+
+  count)
+    call_ipc notifications count
+    ;;
+
+  ping)
+    call_ipc notifications ping
+    ;;
+
+  test)
+    TITLE="${2:-QuickShell Notification}"
+    BODY="${3:-Your desktop notification service is operating properly!}"
+    URGENCY="${4:-normal}"
+    ICON="${5:-}"
+    
+    # Try sending via IPC directly first
+    PAYLOAD=$(jq -cn \
+      --arg summary "$TITLE" \
+      --arg body "$BODY" \
+      --arg urgency "$URGENCY" \
+      --arg icon "$ICON" \
+      '{summary:$summary, body:$body, urgency:$urgency, icon:$icon, app:"QuickShell", timeout:6000}')
+    
+    call_ipc notifications show "$PAYLOAD" >/dev/null 2>&1 || true
+    ;;
+
+  send)
+    shift
+    notify-send "$@"
+    ;;
+
+  help|--help|-h)
+    cat <<EOF
+Usage: qs-notifications <command> [args...]
+
+Commands:
+  toggle-dnd          Toggle Do Not Disturb mode
+  dnd-status          Print current DND status (on/off)
+  set-dnd <on|off>    Set Do Not Disturb state
+  dismiss-all         Dismiss all active notification popups
+  dismiss-one         Dismiss the newest notification popup
+  dismiss <summary>   Dismiss notifications matching summary text
+  invoke-last         Activate default action of newest notification
+  count               Print active notification count
+  test [title] [body] Show a test notification toast
+  send [args...]      Send notification via notify-send
+EOF
+    ;;
+
+  *)
+    echo "Unknown command: $CMD. Run 'qs-notifications help' for usage." >&2
+    exit 1
+    ;;
+esac

@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# qs-network-qr: Generate WiFi QR Code ASCII matrix for quickshell
+
+set -euo pipefail
+
+emit_meta=false
+interface=""
+
+for arg in "$@"; do
+  case "$arg" in
+    --meta) emit_meta=true ;;
+    *) interface="$arg" ;;
+  esac
+done
+
+if [[ -z "$interface" ]]; then
+  route_device=$(ip route get 1.1.1.1 2>/dev/null | awk '{ for (i = 1; i <= NF; i++) if ($i == "dev") { print $(i + 1); exit } }')
+  if [[ -n "$route_device" && -d "/sys/class/net/$route_device/wireless" ]]; then
+    interface="$route_device"
+  else
+    interface=$(LC_ALL=C nmcli -t -f DEVICE,TYPE,STATE device status 2>/dev/null | awk -F: '$2 == "wifi" && $3 ~ /^connected/ { print $1; exit }')
+  fi
+fi
+
+if [[ -z "$interface" ]]; then
+  echo "No active Wi-Fi connection" >&2
+  exit 1
+fi
+
+uuid=$(nmcli --get-values GENERAL.CON-UUID device show "$interface" 2>/dev/null | head -n 1)
+if [[ -z "$uuid" || "$uuid" == "--" ]]; then
+  echo "No active Wi-Fi connection" >&2
+  exit 1
+fi
+
+mapfile -t fields < <(nmcli --show-secrets --escape no --get-values \
+  802-11-wireless.ssid,802-11-wireless-security.key-mgmt,802-11-wireless-security.psk,802-11-wireless.hidden,802-11-wireless-security.wep-key0 \
+  connection show uuid "$uuid" 2>/dev/null || true)
+
+ssid="${fields[0]:-}"
+key_mgmt="${fields[1]:-}"
+password="${fields[2]:-}"
+hidden="${fields[3]:-no}"
+wep_key="${fields[4]:-}"
+
+if [[ -z "$ssid" ]]; then
+  echo "Could not read Wi-Fi name" >&2
+  exit 1
+fi
+
+escape_wifi_qr() {
+  local value="$1"
+  value="${value//\\/\\\\}"
+  value="${value//;/\\;}"
+  value="${value//,/\\,}"
+  value="${value//:/\\:}"
+  printf '%s' "$value"
+}
+
+if [[ -n "$key_mgmt" && "$key_mgmt" != "none" ]]; then
+  security="WPA"
+elif [[ -n "$wep_key" ]]; then
+  password="$wep_key"
+  security="WEP"
+else
+  security="nopass"
+fi
+
+payload="WIFI:T:$security;S:$(escape_wifi_qr "$ssid");P:$(escape_wifi_qr "$password");"
+[[ "$hidden" == "yes" ]] && payload+="H:true;"
+payload+=";"
+
+if [[ "$emit_meta" == "true" ]]; then
+  printf 'meta\t%s\t%s\t%s\n' "$interface" "$security" "$ssid"
+fi
+
+if ! command -v qrencode >/dev/null 2>&1; then
+  echo "qrencode not installed" >&2
+  exit 1
+fi
+
+ascii=$(printf '%s' "$payload" | qrencode --type ASCII --margin 4 --output - 2>/dev/null)
+while IFS= read -r line; do
+  row=""
+  for ((column = 0; column < ${#line}; column += 2)); do
+    [[ "${line:column:2}" == *#* ]] && row+=1 || row+=0
+  done
+  printf '%s\n' "$row"
+done <<<"$ascii"

@@ -1,0 +1,41 @@
+#!/bin/sh
+# qs-trackpad: Minimal POSIX shell helper to toggle or set touchpad state via Hyprland IPC
+# Zero Python, zero cache files, zero interpreter overhead.
+
+CMD="${1:-toggle}"
+
+DEV=$(hyprctl devices -j 2>/dev/null | jq -r '.mice[]? | select(.name | test("touchpad|trackpad"; "i")) | .name' 2>/dev/null | head -n1)
+[ -z "$DEV" ] && DEV="elan0788:00-04f3:321a-touchpad"
+
+case "$CMD" in
+    on|enable|1|true)
+        STATE=$(hyprctl repl "_G.touchpad_enabled = true; hl.device({ name = '$DEV', enabled = true }); return 'ON'")
+        ;;
+    off|disable|0|false)
+        STATE=$(hyprctl repl "_G.touchpad_enabled = false; hl.device({ name = '$DEV', enabled = false }); return 'OFF'")
+        ;;
+    status)
+        STATE=$(hyprctl repl "return (_G.touchpad_enabled ~= false) and 'ON' or 'OFF'")
+        STATE=$(echo "$STATE" | tr -d '[:space:]')
+        echo "$STATE"
+        exit 0
+        ;;
+    *)
+        STATE=$(hyprctl repl "
+            if _G.touchpad_enabled == nil then _G.touchpad_enabled = true end
+            _G.touchpad_enabled = not _G.touchpad_enabled
+            hl.device({ name = '$DEV', enabled = _G.touchpad_enabled })
+            return _G.touchpad_enabled and 'ON' or 'OFF'
+        ")
+        ;;
+esac
+
+STATE=$(echo "$STATE" | tr -d '[:space:]')
+
+if [ "$STATE" = "ON" ]; then
+    qs-osd -i trackpad-on -m "Trackpad: ON" -d 1600 >/dev/null 2>&1 &
+    echo "Trackpad enabled"
+else
+    qs-osd -i trackpad-off -m "Trackpad: OFF" -d 1600 >/dev/null 2>&1 &
+    echo "Trackpad disabled"
+fi

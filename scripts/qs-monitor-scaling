@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# qs-monitor-scaling: Hyprland monitor scaling — no external dependencies beyond hyprctl + jq
+
+set -e
+
+# Print current scale of the focused monitor (or first monitor)
+focused_scale() {
+  hyprctl monitors -j 2>/dev/null \
+    | jq -r '([.[] | select(.focused == true)][0] // .[0]).scale // 1' 2>/dev/null \
+    || echo "1"
+}
+
+if [[ $# -eq 0 || -z "$1" ]]; then
+  focused_scale
+  exit 0
+fi
+
+scale="$1"
+
+# Get focused (or first) monitor info
+monitor_info=$(hyprctl monitors -j 2>/dev/null \
+  | jq -e -c '([.[] | select(.focused == true)][0] // .[0])' 2>/dev/null || true)
+
+if [[ -z "$monitor_info" || "$monitor_info" == "null" ]]; then
+  echo "Error: could not get monitor info from hyprctl" >&2
+  exit 1
+fi
+
+active_monitor=$(echo "$monitor_info" | jq -r '.name')
+width=$(echo "$monitor_info" | jq -r '.width')
+height=$(echo "$monitor_info" | jq -r '.height')
+refresh=$(echo "$monitor_info" | jq -r '.refreshRate')
+
+# Apply via hyprctl eval in Lua mode or keyword in legacy mode
+hyprctl eval "hl.monitor({ output = '${active_monitor}', mode = '${width}x${height}@${refresh}', position = 'auto', scale = ${scale} })" \
+  >/dev/null 2>&1 || \
+hyprctl keyword monitor "${active_monitor},${width}x${height}@${refresh},auto,${scale}" \
+  >/dev/null 2>&1 || \
+hyprctl keyword monitor "${active_monitor},preferred,auto,${scale}" \
+  >/dev/null 2>&1 || true
+
+# Persist to ~/.config/hypr/monitors.conf if it exists
+monitor_conf="$HOME/.config/hypr/monitors.conf"
+if [[ -f "$monitor_conf" ]]; then
+  # Update any line matching: monitor=<name>,...,<scale>
+  sed -i -E "s|(monitor\s*=\s*${active_monitor}\s*,[^,]+,[^,]+,)[0-9.]+|\1${scale}|" \
+    "$monitor_conf" 2>/dev/null || true
+fi
+
+# Also update ~/.config/hypr/hyprland.conf if it contains monitor lines
+hypr_conf="$HOME/.config/hypr/hyprland.conf"
+if [[ -f "$hypr_conf" ]] && grep -q "^monitor\s*=" "$hypr_conf" 2>/dev/null; then
+  sed -i -E "s|(monitor\s*=\s*${active_monitor}\s*,[^,]+,[^,]+,)[0-9.]+|\1${scale}|" \
+    "$hypr_conf" 2>/dev/null || true
+fi
+
+# Update GDK scale for fractional: round to nearest integer
+new_gdk_scale=$(awk -v s="$scale" 'BEGIN { printf "%d", int(s + 0.5) }')
+if [[ "$new_gdk_scale" -ge 1 ]]; then
+  gsettings set org.gnome.desktop.interface scaling-factor "$new_gdk_scale" 2>/dev/null || true
+  export GDK_SCALE="$new_gdk_scale"
+fi
+
+echo "$scale"

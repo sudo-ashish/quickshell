@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# qs-osd: On-Screen Display CLI for QuickShell
+set -euo pipefail
+
+icon=""
+message=""
+progress=""
+progress_text=""
+max="100"
+duration=""
+
+CALL_CMD=(qs -p "$HOME/quickshell")
+
+json_escape() {
+  local s="${1:-}"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+while (($#)); do
+  case $1 in
+    -i|--icon)
+      if [[ $# -lt 2 ]]; then
+        echo "Error: $1 requires an argument" >&2
+        exit 1
+      fi
+      icon="$2"
+      shift 2
+      ;;
+    -m|--message)
+      if [[ $# -lt 2 ]]; then
+        echo "Error: $1 requires an argument" >&2
+        exit 1
+      fi
+      message="$2"
+      shift 2
+      ;;
+    -p|--progress)
+      if [[ $# -lt 2 ]]; then
+        echo "Error: $1 requires an argument" >&2
+        exit 1
+      fi
+      progress="$2"
+      shift 2
+      ;;
+    --max)
+      if [[ $# -lt 2 ]]; then
+        echo "Error: $1 requires an argument" >&2
+        exit 1
+      fi
+      max="$2"
+      shift 2
+      ;;
+    -d|--duration)
+      if [[ $# -lt 2 ]]; then
+        echo "Error: $1 requires an argument" >&2
+        exit 1
+      fi
+      duration="$2"
+      shift 2
+      ;;
+    --close)
+      "${CALL_CMD[@]}" ipc call osd close >/dev/null 2>&1 || qs ipc call osd close >/dev/null 2>&1 || true
+      exit 0
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+if [[ -n $progress ]]; then
+  progress_text="${progress}%"
+fi
+
+payload=$(printf '{"icon":"%s","message":"%s","value":"%s","progressText":"%s","max":"%s","duration":"%s"}' \
+  "$(json_escape "$icon")" \
+  "$(json_escape "$message")" \
+  "$(json_escape "$progress")" \
+  "$(json_escape "$progress_text")" \
+  "$(json_escape "$max")" \
+  "$(json_escape "$duration")")
+
+"${CALL_CMD[@]}" ipc call osd display "$payload" >/dev/null 2>&1 || \
+"${CALL_CMD[@]}" ipc call osd trigger "$icon" "$message" >/dev/null 2>&1 || \
+qs ipc call osd display "$payload" >/dev/null 2>&1 || true

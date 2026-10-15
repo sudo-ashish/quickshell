@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# QuickShell wpctl wrapper: triggers OSD even when volume is already 100% or 0%
+
+REAL_WPCTL="/usr/bin/wpctl"
+if [[ ! -x "$REAL_WPCTL" ]]; then
+  REAL_WPCTL=$(type -P wpctl || true)
+fi
+
+no_osd=0
+args=()
+for arg in "$@"; do
+  if [[ "$arg" == "--no-osd" ]]; then
+    no_osd=1
+  else
+    args+=("$arg")
+  fi
+done
+
+"$REAL_WPCTL" "${args[@]}"
+ret=$?
+
+if [[ $ret -ne 0 || $no_osd -eq 1 ]]; then
+  exit $ret
+fi
+
+is_sink_vol=0
+is_sink_mute=0
+is_source_mute=0
+is_source_vol=0
+
+target_source=0
+target_sink=0
+
+for arg in "${args[@]}"; do
+  case "$arg" in
+    @DEFAULT_AUDIO_SOURCE@|@DEFAULT_SOURCE@)
+      target_source=1
+      ;;
+    @DEFAULT_AUDIO_SINK@|@DEFAULT_SINK@)
+      target_sink=1
+      ;;
+    set-volume)
+      is_sink_vol=1
+      ;;
+    set-mute)
+      is_sink_mute=1
+      ;;
+  esac
+done
+
+if [[ $target_source -eq 1 ]]; then
+  if [[ $is_sink_vol -eq 1 ]]; then
+    is_sink_vol=0
+    is_source_vol=1
+  fi
+  if [[ $is_sink_mute -eq 1 ]]; then
+    is_sink_mute=0
+    is_source_mute=1
+  fi
+fi
+
+if [[ $is_sink_vol -eq 1 || $is_sink_mute -eq 1 ]]; then
+  out=$("$REAL_WPCTL" get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo "")
+  if [[ -n "$out" ]]; then
+    is_muted=0
+    if [[ "$out" == *"[MUTED]"* ]]; then
+      is_muted=1
+    fi
+    val=$(awk '{print $2}' <<< "$out")
+    pct=$(awk -v v="$val" 'BEGIN { printf "%d", (v * 100) + 0.5 }')
+    
+    if [[ $is_muted -eq 1 ]]; then
+      qs-osd -i "volume-muted" -m "Muted" -p "$pct" >/dev/null 2>&1 || true
+    else
+      qs-osd -i "volume" -p "$pct" >/dev/null 2>&1 || true
+    fi
+  fi
+elif [[ $is_source_mute -eq 1 ]]; then
+  out=$("$REAL_WPCTL" get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null || echo "")
+  if [[ "$out" == *"[MUTED]"* ]]; then
+    qs-osd -i "microphone-muted" -m "Mic Muted" >/dev/null 2>&1 || true
+  else
+    qs-osd -i "microphone" -m "Mic Active" >/dev/null 2>&1 || true
+  fi
+elif [[ $is_source_vol -eq 1 ]]; then
+  out=$("$REAL_WPCTL" get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null || echo "")
+  if [[ -n "$out" ]]; then
+    val=$(awk '{print $2}' <<< "$out")
+    pct=$(awk -v v="$val" 'BEGIN { printf "%d", (v * 100) + 0.5 }')
+    qs-osd -i "microphone" -p "$pct" >/dev/null 2>&1 || true
+  fi
+fi
+
+exit $ret

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# qs-brightness: System-independent brightness control for quickshell
+
+set -e
+
+monitor=""
+no_osd=0
+target=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-osd)
+      no_osd=1
+      shift
+      ;;
+    --monitor)
+      monitor="$2"
+      shift 2
+      ;;
+    *)
+      target="$1"
+      shift
+      ;;
+  esac
+done
+
+get_brightness() {
+  if command -v brightnessctl >/dev/null 2>&1; then
+    val=$(brightnessctl -m 2>/dev/null | head -n1 | awk -F, '{ gsub("%", "", $4); print $4 }')
+    if [[ -n "$val" ]]; then
+      echo "$val"
+      return 0
+    fi
+  fi
+
+  if [[ -d /sys/class/backlight ]]; then
+    for dev in /sys/class/backlight/*; do
+      if [[ -f "$dev/brightness" && -f "$dev/max_brightness" ]]; then
+        cur=$(cat "$dev/brightness" 2>/dev/null || echo 0)
+        max=$(cat "$dev/max_brightness" 2>/dev/null || echo 1)
+        if [[ $max -gt 0 ]]; then
+          echo $(( cur * 100 / max ))
+          return 0
+        fi
+      fi
+    done
+  fi
+
+  echo "100"
+}
+
+if [[ -z "$target" ]]; then
+  get_brightness
+  exit 0
+fi
+
+# Clean target percentage
+target_clean="${target%\%}"
+
+if command -v brightnessctl >/dev/null 2>&1; then
+  if [[ -n "$monitor" ]] && brightnessctl --device "$monitor" info >/dev/null 2>&1; then
+    brightnessctl --device "$monitor" set "${target_clean}%" >/dev/null 2>&1 || true
+  else
+    brightnessctl set "${target_clean}%" >/dev/null 2>&1 || true
+  fi
+elif [[ -d /sys/class/backlight ]]; then
+  for dev in /sys/class/backlight/*; do
+    if [[ -w "$dev/brightness" && -f "$dev/max_brightness" ]]; then
+      max=$(cat "$dev/max_brightness" 2>/dev/null || echo 1)
+      val=$(( target_clean * max / 100 ))
+      echo "$val" > "$dev/brightness" 2>/dev/null || true
+    fi
+  done
+fi
+
+res=$(get_brightness)
+if [[ "$no_osd" -eq 0 ]]; then
+  qs-osd -i "brightness" -p "$res" >/dev/null 2>&1 || true
+fi
+echo "$res"

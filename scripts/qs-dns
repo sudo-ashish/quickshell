@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+# qs-dns: Robust Arch Linux DNS configuration and query utility for Quickshell
+# Supports: Cloudflare (IPv4+IPv6), Google (IPv4+IPv6), DHCP
+#
+# Optional: To allow passwordless DNS switching for wheel users without Polkit prompts,
+# create /etc/polkit-1/rules.d/50-nm-dns.rules with:
+#   polkit.addRule(function(action, subject) {
+#       if (action.id == "org.freedesktop.NetworkManager.settings.modify.system" &&
+#           subject.isInGroup("wheel")) {
+#           return polkit.Result.YES;
+#       }
+#   });
+set -euo pipefail
+
+PROVIDER="${1:-}"
+DNS_STATE_FILE="${2:-${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/dns-provider}"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. Query Mode (zero arguments or empty string)
+# ─────────────────────────────────────────────────────────────────────────────
+if [[ $# -eq 0 || -z "$PROVIDER" ]]; then
+  # Check cached state file first using built-in redirection (zero subshells)
+  if [[ -f "$DNS_STATE_FILE" ]]; then
+    saved="$(< "$DNS_STATE_FILE")"
+    saved="${saved//[[:space:]]/}"
+    if [[ "$saved" =~ ^(Cloudflare|Google|DHCP)$ ]]; then
+      echo "$saved"
+      exit 0
+    fi
+  fi
+
+  # Fallback 1: Inspect systemd-resolved active DNS
+  if command -v resolvectl >/dev/null 2>&1; then
+    dns_servers="$(resolvectl dns 2>/dev/null)" || dns_servers=""
+    if [[ "$dns_servers" == *"1.1.1.1"* || "$dns_servers" == *"2606:4700:4700::1111"* ]]; then
+      echo "Cloudflare"
+      exit 0
+    elif [[ "$dns_servers" == *"8.8.8.8"* || "$dns_servers" == *"2001:4860:4860::8888"* ]]; then
+      echo "Google"
+      exit 0
+    fi
+  fi
+
+  # Fallback 2: Inspect NetworkManager active DNS
+  if command -v nmcli >/dev/null 2>&1; then
+    nm_dns="$(nmcli -t -f IP4.DNS,IP6.DNS dev show 2>/dev/null)" || nm_dns=""
+    if [[ "$nm_dns" == *"1.1.1.1"* || "$nm_dns" == *"2606:4700:4700::1111"* ]]; then
+      echo "Cloudflare"
+      exit 0
+    elif [[ "$nm_dns" == *"8.8.8.8"* || "$nm_dns" == *"2001:4860:4860::8888"* ]]; then
+      echo "Google"
+      exit 0
+    fi
+  fi
+
+  echo "DHCP"
+  exit 0
+fi
+
+if [[ "$PROVIDER" == "-h" || "$PROVIDER" == "--help" ]]; then
+  echo "Usage: qs-dns [Cloudflare|Google|DHCP] [STATE_FILE]"
+  echo "       qs-dns                    (Query active provider)"
+  exit 0
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2. Validate Provider & Define IPv4 + IPv6 Targets
+# ─────────────────────────────────────────────────────────────────────────────
+case "$PROVIDER" in
+  Cloudflare)
+    IPV4_DNS="1.1.1.1 1.0.0.1"
+    IPV6_DNS="2606:4700:4700::1111 2606:4700:4700::1001"
+    IGNORE_AUTO_DNS="yes"
+    ;;
+  Google)
+    IPV4_DNS="8.8.8.8 8.8.4.4"
+    IPV6_DNS="2001:4860:4860::8888 2001:4860:4860::8844"
+    IGNORE_AUTO_DNS="yes"
+    ;;
+  DHCP)
+    IPV4_DNS=""
+    IPV6_DNS=""
+    IGNORE_AUTO_DNS="no"
+    ;;
+  *)
+    echo "Error: Unknown DNS provider '$PROVIDER'. Expected 'Cloudflare', 'Google', or 'DHCP'." >&2
+    exit 1
+    ;;
+esac
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 3. Conditional Polkit Elevation Helper
+# ─────────────────────────────────────────────────────────────────────────────
+# Returns 0 if current process can modify NetworkManager without interactive prompt
+can_modify_nm() {
+  if [[ $EUID -eq 0 ]]; then
+    return 0
+  fi
+
+  # Check via pkcheck for passwordless authorization
+  if command -v pkcheck >/dev/null 2>&1; then
+    if pkcheck -a "org.freedesktop.NetworkManager.settings.modify.system" -p "$$" >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+
+  # Fallback: check nmcli cached permissions table
+  if command -v nmcli >/dev/null 2>&1; then
+    local perm
+    perm="$(nmcli general permissions 2>/dev/null | awk '$1 == "org.freedesktop.NetworkManager.settings.modify.system" {print $2}')" || perm=""
+    if [[ "$perm" == "yes" ]]; then
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+# Returns 0 if current process can modify systemd-resolved without interactive prompt
+can_modify_resolved() {
+  if [[ $EUID -eq 0 ]]; then
+    return 0
+  fi
+
+  if command -v pkcheck >/dev/null 2>&1; then
+    if pkcheck -a "org.freedesktop.resolve1.set-dns-servers" -p "$$" >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+# Elevate via pkexec only if required
+elevate_if_needed() {
+  local check_fn="$1"
+  if ! "$check_fn"; then
+    if command -v pkexec >/dev/null 2>&1; then
+      exec pkexec --disable-internal-agent env \
+        PATH="$PATH" \
+        PKEXEC_CALLER_UID="${UID:-1000}" \
+        "$0" "$PROVIDER" "$DNS_STATE_FILE"
+    else
+      echo "Error: Modifying network settings requires root privileges or pkexec." >&2
+      exit 1
+    fi
+  fi
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 4. Apply DNS Settings
+# ─────────────────────────────────────────────────────────────────────────────
+modified_count=0
+
+# Primary Path: NetworkManager (nmcli)
+if command -v nmcli >/dev/null 2>&1; then
+  # Ensure we have required privileges before starting batch operations
+  elevate_if_needed can_modify_nm
+
+  # Parse active Wi-Fi and Ethernet connections
+  while IFS=: read -r uuid type dev; do
+    [[ -z "$uuid" || -z "$dev" ]] && continue
+    case "$type" in
+      802-11-wireless|wifi|ethernet|802-3-ethernet)
+        # Apply IPv4 and IPv6 resolvers simultaneously to prevent IPv6 DNS leaks
+        if ! nmcli con mod "$uuid" \
+             ipv4.ignore-auto-dns "$IGNORE_AUTO_DNS" \
+             ipv4.dns "$IPV4_DNS" \
+             ipv6.ignore-auto-dns "$IGNORE_AUTO_DNS" \
+             ipv6.dns "$IPV6_DNS"; then
+          echo "Error: Failed to modify DNS settings on connection $uuid ($dev)" >&2
+          continue
+        fi
+
+        # Dynamically reapply settings; fallback to con up if reapply is unsupported
+        if ! nmcli dev reapply "$dev" >/dev/null 2>&1; then
+          if ! nmcli con up "$uuid" >/dev/null 2>&1; then
+            echo "Warning: Reapplication failed for device '$dev' (connection '$uuid')" >&2
+          fi
+        fi
+
+        ((modified_count++)) || true
+        ;;
+    esac
+  done < <(nmcli -t -f UUID,TYPE,DEVICE con show --active 2>/dev/null || true)
+fi
+
+# Fallback Path: Pure systemd-resolved (resolvectl)
+if [[ $modified_count -eq 0 ]] && command -v resolvectl >/dev/null 2>&1; then
+  dev="$(ip route show default 2>/dev/null | awk '/default/ {print $5}' | head -n1)" || dev=""
+  if [[ -n "$dev" ]]; then
+    elevate_if_needed can_modify_resolved
+
+    case "$PROVIDER" in
+      Cloudflare)
+        resolvectl dns "$dev" 1.1.1.1 1.0.0.1 2606:4700:4700::1111 2606:4700:4700::1001
+        ;;
+      Google)
+        resolvectl dns "$dev" 8.8.8.8 8.8.4.4 2001:4860:4860::8888 2001:4860:4860::8844
+        ;;
+      DHCP)
+        resolvectl revert "$dev"
+        ;;
+    esac
+
+    ((modified_count++)) || true
+  fi
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5. Finalize State File & Exit
+# ─────────────────────────────────────────────────────────────────────────────
+if [[ $modified_count -gt 0 ]]; then
+  mkdir -p "$(dirname "$DNS_STATE_FILE")" 2>/dev/null || true
+  echo "$PROVIDER" > "$DNS_STATE_FILE"
+
+  # If running under pkexec, restore ownership of the state file to calling user
+  if [[ -n "${PKEXEC_CALLER_UID:-}" && $EUID -eq 0 ]]; then
+    chown "$PKEXEC_CALLER_UID" "$DNS_STATE_FILE" 2>/dev/null || true
+  fi
+
+  echo "$PROVIDER"
+  exit 0
+else
+  echo "Error: No active network connections or interfaces found to apply DNS." >&2
+  exit 1
+fi

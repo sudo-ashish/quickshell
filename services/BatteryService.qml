@@ -1,0 +1,71 @@
+import QtQuick
+import Quickshell
+import Quickshell.Io
+
+QtObject {
+    id: root
+
+    property int capacity: 100
+    property string status: "Full"
+    property string statusDisplay: "FULLY CHARGED"
+    property bool isCharging: false
+    property string batterySize: "40Wh"
+    property string cycleCount: "177"
+    property string timeLabel: "Time to full"
+    property string timeToFull: "-"
+    property string chargingRate: "-"
+
+    readonly property string icon: {
+        if (isCharging) return "󰂄"
+        if (capacity >= 95) return "󰁹"
+        if (capacity >= 85) return "󰂂"
+        if (capacity >= 75) return "󰂁"
+        if (capacity >= 65) return "󰂀"
+        if (capacity >= 55) return "󰁿"
+        if (capacity >= 45) return "󰁾"
+        if (capacity >= 35) return "󰁽"
+        if (capacity >= 25) return "󰁼"
+        if (capacity >= 15) return "󰁻"
+        if (capacity >= 5)  return "󰁺"
+        return "󰂃"
+    }
+
+    function refresh() {
+        if (!getBatteryProc.running) getBatteryProc.running = true
+    }
+
+    property Process getBatteryProc: Process {
+        id: getBatteryProc
+        command: ["qs-battery-info"]
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                try {
+                    var data = JSON.parse(text.trim())
+                    if (data) {
+                        if (typeof data.capacity === "number") root.capacity = data.capacity
+                        if (data.status) root.status = data.status
+                        if (data.statusDisplay) root.statusDisplay = data.statusDisplay
+                        if (typeof data.isCharging === "boolean") root.isCharging = data.isCharging
+                        if (data.batterySize) root.batterySize = data.batterySize
+                        if (data.cycleCount) root.cycleCount = String(data.cycleCount)
+                        if (data.timeLabel) root.timeLabel = data.timeLabel
+                        if (data.timeToFull) root.timeToFull = data.timeToFull
+                        if (data.chargingRate) root.chargingRate = data.chargingRate
+                    }
+                } catch (e) {
+                    // ignore json parsing errors
+                }
+            }
+        }
+    }
+
+    property Timer pollTimer: Timer {
+        interval: 5000
+        repeat: true
+        running: true
+        onTriggered: root.refresh()
+    }
+
+    Component.onCompleted: root.refresh()
+}

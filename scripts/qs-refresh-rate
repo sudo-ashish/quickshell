@@ -1,0 +1,73 @@
+w#!/usr/bin/env bash
+# qs-refresh-rate: Query, toggle or set monitor refresh rate with OSD notification
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PATH="$HOME/.local/bin:$SCRIPT_DIR:$PATH"
+
+cmd="${1:-toggle}"
+
+monitors_json=$(hyprctl monitors -j 2>/dev/null || echo "[]")
+if [[ "$monitors_json" == "[]" || -z "$monitors_json" ]]; then
+  echo "Error: hyprctl not running or no monitors found" >&2
+  exit 1
+fi
+
+mon_info=$(echo "$monitors_json" | jq -e -c '([.[] | select(.focused == true)][0] // .[0])' 2>/dev/null)
+name=$(echo "$mon_info" | jq -r '.name')
+width=$(echo "$mon_info" | jq -r '.width')
+height=$(echo "$mon_info" | jq -r '.height')
+scale=$(echo "$mon_info" | jq -r '.scale // 1')
+current_hz=$(echo "$mon_info" | jq -r '(.refreshRate // 60) | round')
+
+# Parse available modes for this monitor
+available_modes=$(echo "$mon_info" | jq -r '.availableModes[]?' 2>/dev/null || true)
+max_hz=60
+if [[ -n "$available_modes" ]]; then
+  for m in $available_modes; do
+    if [[ "$m" =~ @([0-9.]+)Hz ]]; then
+      hz_float="${BASH_REMATCH[1]}"
+      hz_round=$(printf "%.0f" "$hz_float")
+      if (( hz_round > max_hz )); then
+        max_hz="$hz_round"
+      fi
+    fi
+  done
+fi
+
+case "$cmd" in
+  get|status)
+    echo "${current_hz}Hz"
+    exit 0
+    ;;
+  toggle)
+    if (( current_hz <= 60 )); then
+      target_hz="$max_hz"
+    else
+      target_hz=60
+    fi
+    ;;
+  [0-9]*)
+    target_hz="$cmd"
+    ;;
+  max)
+    target_hz="$max_hz"
+    ;;
+  *)
+    echo "Usage: qs-refresh-rate {toggle|get|<rate>|max}"
+    exit 1
+    ;;
+esac
+
+# Apply to Hyprland
+hyprctl eval "hl.monitor({ output = '${name}', mode = '${width}x${height}@${target_hz}', position = 'auto', scale = ${scale} })" >/dev/null 2>&1 || \
+hyprctl keyword monitor "${name},${width}x${height}@${target_hz},auto,${scale}" >/dev/null 2>&1 || true
+
+# Allow physical display modeset to complete before popping OSD
+sleep 0.35
+
+# Trigger OSD
+msg="${width}x${height} @ ${target_hz}Hz"
+qs ipc call osd refreshRate "$msg" >/dev/null 2>&1 || true
+
+echo "$msg"

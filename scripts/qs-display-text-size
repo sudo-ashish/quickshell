@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# qs-display-text-size: Manage quickshell + system text size
+# No external dependencies beyond gsettings (gtk3) and common terminal config files.
+
+CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/text-size"
+MIN=9
+MAX=20
+GKEY_SCHEMA="org.gnome.desktop.interface"
+GKEY_NAME="text-scaling-factor"
+SHELL_DEFAULT_PX=12
+TERM_DEFAULT_PT=9
+
+# Helper to get current GTK font point size
+gtk_font_pt() {
+  local name pt
+  name="$(gsettings get "$GKEY_SCHEMA" font-name 2>/dev/null || echo "")"
+  pt="${name%\'}"
+  pt="${pt##* }"
+  if [[ $pt =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    echo "$pt"
+  else
+    echo 11
+  fi
+}
+
+# Helper to update terminal font sizes
+set_terminal_size() {
+  local pt="$1"
+  if [[ -f ~/.config/alacritty/alacritty.toml ]]; then
+    sed -i -E "s/^size[[:space:]]*=.*/size = $pt/" ~/.config/alacritty/alacritty.toml
+  fi
+  if [[ -f ~/.config/kitty/kitty.conf ]]; then
+    if grep -qE '^[[:space:]]*font_size[[:space:]]+' ~/.config/kitty/kitty.conf 2>/dev/null; then
+      sed --follow-symlinks -i -E "s/^[[:space:]]*font_size[[:space:]]+.*/font_size $pt.0/" ~/.config/kitty/kitty.conf
+    else
+      printf '\nfont_size %s.0\n' "$pt" >>~/.config/kitty/kitty.conf
+    fi
+    pkill -USR1 kitty 2>/dev/null || true
+  fi
+  if [[ -f ~/.config/ghostty/config ]]; then
+    sed -i -E "s/^font-size = .*/font-size = $pt/" ~/.config/ghostty/config
+    pkill -SIGUSR2 ghostty 2>/dev/null || true
+  fi
+  if [[ -f ~/.config/foot/foot.ini ]]; then
+    sed -i -E "s/(:size=)[0-9.]+/\1$pt/" ~/.config/foot/foot.ini
+  fi
+}
+
+# --- GET current size ---
+if [[ $# -eq 0 || -z "$1" ]]; then
+  if [[ -f "$CONFIG_FILE" ]]; then
+    size=$(cat "$CONFIG_FILE" 2>/dev/null || echo "12")
+  else
+    size="12"
+  fi
+  echo "text size: ${size} px"
+  exit 0
+fi
+
+# --- SET new size ---
+size="$1"
+
+# Validate range
+if ! [[ "$size" =~ ^[0-9]+$ ]] || [[ "$size" -lt "$MIN" || "$size" -gt "$MAX" ]]; then
+  echo "Error: size must be an integer between $MIN and $MAX" >&2
+  exit 1
+fi
+
+mkdir -p "$(dirname "$CONFIG_FILE")"
+echo "$size" >"$CONFIG_FILE"
+
+# GTK text-scaling-factor
+fpt="$(gtk_font_pt)"
+factor=$(awk -v s="$size" -v b="$SHELL_DEFAULT_PX" -v f="$fpt" \
+  'BEGIN { printf "%.4f", int(f * s / b + 0.5) / f }')
+gsettings set "$GKEY_SCHEMA" "$GKEY_NAME" "$factor" 2>/dev/null || true
+
+# Terminal font size (proportional)
+term_pt=$(awk -v s="$size" -v p="$TERM_DEFAULT_PT" -v b="$SHELL_DEFAULT_PX" \
+  'BEGIN { printf "%d", int(s * p / b + 0.5) }')
+set_terminal_size "$term_pt"
+
+echo "text size: ${size} px"

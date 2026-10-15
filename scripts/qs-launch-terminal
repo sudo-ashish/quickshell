@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# qs-launch-terminal: System-independent floating terminal launcher for quickshell
+
+TERM_BIN=""
+for t in "$TERMINAL" foot kitty alacritty ghostty wezterm gnome-terminal xfce4-terminal xterm; do
+  if [[ -n "$t" ]] && command -v "$t" >/dev/null 2>&1; then
+    TERM_BIN="$t"
+    break
+  fi
+done
+
+if [[ -z "$TERM_BIN" ]]; then
+  echo "No terminal emulator found" >&2
+  exit 1
+fi
+
+case "$TERM_BIN" in
+  foot)
+    exec foot --app-id=floating-terminal "$@"
+    ;;
+  kitty)
+    exec kitty --class=floating-terminal "$@"
+    ;;
+  alacritty)
+    exec alacritty --class=floating-terminal -e "$@"
+    ;;
+  ghostty)
+    exec ghostty --class=floating-terminal -e "$@"
+    ;;
+  wezterm)
+    exec wezterm start --class=floating-terminal -- "$@"
+    ;;
+  *)
+    exec "$TERM_BIN" -e "$@"
+    ;;
+esac

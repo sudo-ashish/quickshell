@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# qs-battery-info: Query detailed battery metrics for quickshell
+set -e
+
+b=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -n1)
+
+cap=100
+status="Full"
+cycles="-"
+size="-"
+time_val="-"
+rate="-"
+status_disp="FULLY CHARGED"
+is_charging=false
+
+if [ -n "$b" ]; then
+  cap=$(cat "$b/capacity" 2>/dev/null || echo 100)
+  status=$(cat "$b/status" 2>/dev/null || echo Full)
+  cycles=$(cat "$b/cycle_count" 2>/dev/null || echo "-")
+  
+  ef=$(cat "$b/energy_full" 2>/dev/null || cat "$b/charge_full" 2>/dev/null || echo 0)
+  en=$(cat "$b/energy_now" 2>/dev/null || cat "$b/charge_now" 2>/dev/null || echo 0)
+  pn=$(cat "$b/power_now" 2>/dev/null || cat "$b/current_now" 2>/dev/null || echo 0)
+  
+  if [ "$ef" -gt 0 ]; then
+    size="$(( ef / 1000000 ))Wh"
+  fi
+  
+  case "$status" in
+    Full|full)
+      status_disp="FULLY CHARGED"
+      is_charging=false
+      ;;
+    Charging|charging)
+      status_disp="CHARGING"
+      is_charging=true
+      ;;
+    Discharging|discharging)
+      status_disp="DISCHARGING"
+      is_charging=false
+      ;;
+    "Not charging"|"not charging")
+      status_disp="NOT CHARGING"
+      is_charging=false
+      ;;
+    *)
+      status_disp=$(echo "$status" | tr '[:lower:]' '[:upper:]')
+      is_charging=false
+      ;;
+  esac
+
+  time_label="Time to full"
+  if [ "$status" = "Charging" ] || [ "$status" = "charging" ]; then
+    time_label="Time to full"
+    if [ "$pn" -gt 0 ] && [ "$ef" -gt "$en" ]; then
+      rem=$(( (ef - en) * 60 / pn ))
+      if [ "$rem" -ge 60 ]; then
+        time_val="$(( rem / 60 ))h $(( rem % 60 ))m"
+      else
+        time_val="${rem}m"
+      fi
+    else
+      time_up=$(upower -i "$(upower -e 2>/dev/null | grep BAT | head -n1)" 2>/dev/null | awk -F: '/time to full/ {print $2}' | xargs)
+      [ -n "$time_up" ] && time_val="$time_up"
+    fi
+    if [ "$pn" -gt 0 ]; then
+      rate="$(( pn / 1000000 ))W"
+    else
+      rate="Active"
+    fi
+  elif [ "$status" = "Discharging" ] || [ "$status" = "discharging" ]; then
+    time_label="Time to empty"
+    if [ "$pn" -gt 0 ] && [ "$en" -gt 0 ]; then
+      rem=$(( en * 60 / pn ))
+      if [ "$rem" -ge 60 ]; then
+        time_val="$(( rem / 60 ))h $(( rem % 60 ))m"
+      else
+        time_val="${rem}m"
+      fi
+    else
+      time_up=$(upower -i "$(upower -e 2>/dev/null | grep BAT | head -n1)" 2>/dev/null | awk -F: '/time to empty/ {print $2}' | xargs)
+      [ -n "$time_up" ] && time_val="$time_up"
+    fi
+    rate="-"
+  else
+    time_label="Time to full"
+    time_val="-"
+    rate="-"
+  fi
+fi
+
+cat << JSON
+{
+  "capacity": $cap,
+  "status": "$status",
+  "statusDisplay": "$status_disp",
+  "isCharging": $is_charging,
+  "cycleCount": "$cycles",
+  "batterySize": "$size",
+  "timeLabel": "$time_label",
+  "timeToFull": "$time_val",
+  "chargingRate": "$rate"
+}
+JSON

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# qs-network-status: System-independent network telemetry for quickshell
+
+set -e
+
+# Default interface and route
+route_info=$(ip -j route show default 2>/dev/null || echo "[]")
+iface=$(echo "$route_info" | jq -r '.[0].dev // ""' 2>/dev/null || echo "")
+gateway=$(echo "$route_info" | jq -r '.[0].gateway // ""' 2>/dev/null || echo "")
+
+if [[ -z "$iface" ]]; then
+  iface=$(ip route 2>/dev/null | awk '/default/ {print $5; exit}')
+  gateway=$(ip route 2>/dev/null | awk '/default/ {print $3; exit}')
+fi
+
+# IP address
+ip_addr=$(ip -j addr show dev "$iface" 2>/dev/null | jq -r '.[0].addr_info[]? | select(.family == "inet") | .local' 2>/dev/null | head -n1 || echo "")
+[[ -z "$ip_addr" && -n "$iface" ]] && ip_addr=$(ip -4 addr show dev "$iface" 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | head -n1 || echo "")
+
+# Traffic Statistics
+rx_bytes=0
+tx_bytes=0
+if [[ -n "$iface" && -r "/sys/class/net/$iface/statistics/rx_bytes" ]]; then
+  rx_bytes=$(cat "/sys/class/net/$iface/statistics/rx_bytes" 2>/dev/null || echo 0)
+  tx_bytes=$(cat "/sys/class/net/$iface/statistics/tx_bytes" 2>/dev/null || echo 0)
+fi
+
+# Connection Type & WiFi Details
+conn_type="ethernet"
+ssid=""
+signal_dbm=""
+if [[ -n "$iface" && -d "/sys/class/net/$iface/wireless" ]] || (command -v nmcli >/dev/null 2>&1 && nmcli -t -f DEVICE,TYPE device 2>/dev/null | grep -q "^$iface:wifi"); then
+  conn_type="wifi"
+  if command -v nmcli >/dev/null 2>&1; then
+    wifi_data=$(nmcli -t -f active,ssid,signal dev wifi 2>/dev/null | awk -F: '$1=="yes"{print $2"\t"$3; exit}')
+    ssid=$(echo "$wifi_data" | cut -f1)
+    sig_pct=$(echo "$wifi_data" | cut -f2)
+    if [[ -n "$sig_pct" ]]; then
+      signal_dbm=$(( (sig_pct / 2) - 100 ))
+    fi
+  fi
+fi
+
+# Non-blocking parallel ping checks
+router_ping_ms=""
+internet_ping_ms=""
+
+tmp_dir="/tmp/qs-ping-$UID"
+mkdir -p "$tmp_dir" 2>/dev/null || tmp_dir="/tmp"
+
+if [[ -n "$gateway" ]]; then
+  (ping -c 1 -W 1 "$gateway" 2>/dev/null | awk -F'/' '/rtt|round-trip/ {print $5}' > "$tmp_dir/gw_$$" 2>/dev/null || true) &
+fi
+(ping -c 1 -W 1 1.1.1.1 2>/dev/null | awk -F'/' '/rtt|round-trip/ {print $5}' > "$tmp_dir/net_$$" 2>/dev/null || true) &
+
+timeout 0.35s wait 2>/dev/null || true
+
+[[ -f "$tmp_dir/gw_$$" ]] && router_ping_ms=$(cat "$tmp_dir/gw_$$" 2>/dev/null || true) && rm -f "$tmp_dir/gw_$$" 2>/dev/null
+[[ -f "$tmp_dir/net_$$" ]] && internet_ping_ms=$(cat "$tmp_dir/net_$$" 2>/dev/null || true) && rm -f "$tmp_dir/net_$$" 2>/dev/null
+
+printf "iface\t%s\n" "${iface:-none}"
+printf "ip\t%s\n" "${ip_addr:-}"
+printf "gateway\t%s\n" "${gateway:-}"
+printf "rx_bytes\t%s\n" "${rx_bytes:-0}"
+printf "tx_bytes\t%s\n" "${tx_bytes:-0}"
+printf "type\t%s\n" "${conn_type:-wifi}"
+printf "ssid\t%s\n" "${ssid:-}"
+printf "signal_dbm\t%s\n" "${signal_dbm:--50}"
+printf "router_ping_ms\t%s\n" "${router_ping_ms:-0}"
+printf "internet_ping_ms\t%s\n" "${internet_ping_ms:-0}"
