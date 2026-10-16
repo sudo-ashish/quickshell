@@ -155,7 +155,7 @@ PanelWindow {
     ShellSurface {
         id: surface
         width: 600
-        height: 430
+        height: 410
         anchors.centerIn: parent
 
         surfaceRadius: 10

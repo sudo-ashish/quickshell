@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# qs-wallpaper: Wallpaper discovery, listing, and switching helper for QuickShell
+set -euo pipefail
+
+CURRENT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/themes/current"
+if [[ ! -d "$CURRENT_DIR" && -d "$HOME/themes/current" ]]; then
+    CURRENT_DIR="$HOME/themes/current"
+fi
+
+SWITCH_BIN="$HOME/.local/bin/wallpaper-switch"
+
+get_active_wallpaper() {
+    local default_link="$CURRENT_DIR/default.png"
+    if [[ -L "$default_link" || -f "$default_link" ]]; then
+        readlink -f "$default_link" 2>/dev/null || echo ""
+    else
+        echo ""
+    fi
+}
+
+list_wallpapers_json() {
+    local bg_dir="$CURRENT_DIR/backgrounds"
+    local active_target
+    active_target="$(get_active_wallpaper)"
+
+    if [[ ! -d "$bg_dir" ]]; then
+        echo "[]"
+        return 0
+    fi
+
+    local items=()
+    shopt -s nullglob
+    for file in "$bg_dir"/*; do
+        [[ -f "$file" ]] || continue
+        case "${file,,}" in
+            *.png|*.jpg|*.jpeg|*.webp|*.avif|*.bmp)
+                local filename
+                filename="$(basename "$file")"
+                # Human readable title: remove extension, leading digits/dashes
+                local clean_name
+                clean_name="$(echo "${filename%.*}" | sed -E 's/^[0-9]+[-_]?//; s/[-_]+/ /g; s/\b([a-z])/\U\1/g')"
+
+                local canon_file
+                canon_file="$(readlink -f "$file" 2>/dev/null || echo "$file")"
+
+                local is_active=false
+                if [[ -n "$active_target" && "$canon_file" == "$active_target" ]]; then
+                    is_active=true
+                fi
+
+                items+=( "$(jq -n \
+                    --arg path "$file" \
+                    --arg name "$clean_name" \
+                    --arg filename "$filename" \
+                    --argjson isActive "$is_active" \
+                    '{path: $path, name: $name, filename: $filename, isActive: $isActive}')" )
+                ;;
+        esac
+    done
+    shopt -u nullglob
+
+    if [[ ${#items[@]} -eq 0 ]]; then
+        echo "[]"
+    else
+        printf "%s\n" "${items[@]}" | jq -s .
+    fi
+}
+
+switch_wallpaper() {
+    local img="${1:-}"
+    if [[ -z "$img" ]]; then
+        echo "error: missing wallpaper path" >&2
+        exit 1
+    fi
+
+    if [[ "$img" != /* ]]; then
+        # If relative or just filename, resolve inside current theme backgrounds
+        if [[ -f "$CURRENT_DIR/backgrounds/$img" ]]; then
+            img="$CURRENT_DIR/backgrounds/$img"
+        elif [[ -f "$PWD/$img" ]]; then
+            img="$PWD/$img"
+        fi
+    fi
+
+    if command -v wallpaper-switch >/dev/null 2>&1; then
+        wallpaper-switch "$img"
+    elif [[ -x "$SWITCH_BIN" ]]; then
+        "$SWITCH_BIN" "$img"
+    else
+        echo "error: wallpaper-switch not found" >&2
+        exit 1
+    fi
+}
+
+CMD="${1:-list}"
+case "$CMD" in
+    list|get)
+        list_wallpapers_json
+        ;;
+    current)
+        get_active_wallpaper
+        ;;
+    switch|apply)
+        shift
+        switch_wallpaper "$@"
+        ;;
+    *)
+        echo "Usage: $0 {list|current|switch <path>}" >&2
+        exit 1
+        ;;
+esac

@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# qs-themeswitcher: QuickShell Theme Switcher launcher controller
+set -euo pipefail
+
+CMD="${1:-toggle}"
+QS_DIR="${QUICKSHELL_DIR:-$HOME/.config/quickshell}"
+
+# Choose CLI binary
+if command -v qs >/dev/null 2>&1; then
+  QS_BIN="qs"
+else
+  QS_BIN="quickshell"
+fi
+
+call_ipc() {
+  local target="$1"; shift
+  local method="$1"; shift
+
+  # Try directly targeting the config location first
+  if [[ -d "$QS_DIR" ]] && "$QS_BIN" -p "$QS_DIR" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  if [[ -d "$HOME/quickshell" ]] && "$QS_BIN" -p "$HOME/quickshell" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  # Fallback to generic default
+  "$QS_BIN" ipc call "$target" "$method" "$@"
+}
+
+case "$CMD" in
+  toggle)
+    call_ipc themeswitcher toggle
+    ;;
+  open)
+    call_ipc themeswitcher open
+    ;;
+  close)
+    call_ipc themeswitcher close
+    ;;
+  next)
+    call_ipc themeswitcher next
+    ;;
+  prev)
+    call_ipc themeswitcher prev
+    ;;
+  select)
+    call_ipc themeswitcher select "${2:-0}"
+    ;;
+  apply)
+    call_ipc themeswitcher apply "${2:-}"
+    ;;
+  state)
+    call_ipc themeswitcher getState
+    ;;
+  setup)
+    "${QS_DIR}/scripts/qs-theme-switch" setup
+    ;;
+  *)
+    call_ipc themeswitcher toggle
+    ;;
+esac

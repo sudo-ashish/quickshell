@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+# qs-theme-switch: Theme discovery, listing, and switching helper for QuickShell
+set -euo pipefail
+
+THEMES_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/themes"
+CURRENT_LINK="$THEMES_DIR/current"
+SETUP_BIN="$HOME/.local/bin/theme-switch-setup"
+SWITCH_BIN="$HOME/.local/bin/theme-switch"
+
+# Ensure binaries in PATH if available
+if ! command -v theme-switch >/dev/null 2>&1 && [[ -x "$SWITCH_BIN" ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+get_current_theme() {
+    if [[ -L "$CURRENT_LINK" ]]; then
+        basename "$(readlink -f "$CURRENT_LINK")"
+    else
+        echo ""
+    fi
+}
+
+list_themes_json() {
+    local cur
+    cur="$(get_current_theme)"
+
+    if [[ ! -d "$THEMES_DIR" ]]; then
+        echo "[]"
+        return 0
+    fi
+
+    local items=()
+    shopt -s nullglob
+    for dir in "$THEMES_DIR"/*; do
+        [[ -d "$dir" && ! -L "$dir" ]] || continue
+        local id
+        id="$(basename "$dir")"
+        [[ "$id" == .* || "$id" == "current" ]] && continue
+
+        # Find first wallpaper matching standard formats
+        local wallpaper=""
+        if [[ -d "$dir/backgrounds" ]]; then
+            for img in "$dir/backgrounds"/*; do
+                [[ -f "$img" ]] || continue
+                case "${img,,}" in
+                    *.png|*.jpg|*.jpeg|*.webp|*.avif|*.bmp)
+                        wallpaper="$img"
+                        break
+                        ;;
+                esac
+            done
+        fi
+
+        # Fallback to default.png or any direct image if backgrounds is empty
+        if [[ -z "$wallpaper" && -f "$dir/default.png" ]]; then
+            wallpaper="$(readlink -f "$dir/default.png" 2>/dev/null || echo "$dir/default.png")"
+        fi
+
+        # Human-readable display name
+        local name
+        name="$(echo "$id" | sed -E 's/[-_]+/ /g; s/\b([a-z])/\U\1/g')"
+
+        local is_current=false
+        if [[ "$id" == "$cur" ]]; then
+            is_current=true
+        fi
+
+        # Try to read accent color from colors.toml
+        local accent=""
+        if [[ -f "$dir/colors.toml" ]]; then
+            accent="$(grep -E '^[[:space:]]*accent[[:space:]]*=' "$dir/colors.toml" 2>/dev/null | head -n1 | sed -E 's/^[[:space:]]*accent[[:space:]]*=[[:space:]]*["'\'']?([^"'\''";]+)["'\'']?.*/\1/' | xargs)"
+            if [[ -n "$accent" && "$accent" != \#* ]]; then
+                accent="#$accent"
+            fi
+        fi
+
+        items+=( "$(jq -n \
+            --arg id "$id" \
+            --arg name "$name" \
+            --arg wallpaper "$wallpaper" \
+            --arg accent "$accent" \
+            --argjson isCurrent "$is_current" \
+            '{id: $id, name: $name, wallpaper: $wallpaper, accent: $accent, isCurrent: $isCurrent}')" )
+    done
+    shopt -u nullglob
+
+    if [[ ${#items[@]} -eq 0 ]]; then
+        echo "[]"
+    else
+        printf "%s\n" "${items[@]}" | jq -s .
+    fi
+}
+
+switch_theme() {
+    local theme="${1:-}"
+    if [[ -z "$theme" ]]; then
+        echo "error: theme argument missing" >&2
+        exit 1
+    fi
+
+    # Verify/repair setup if current link or setup is needed
+    if [[ ! -L "$CURRENT_LINK" || ! -e "$CURRENT_LINK" ]]; then
+        if [[ -x "$SETUP_BIN" ]]; then
+            "$SETUP_BIN" >/dev/null 2>&1 || true
+        elif command -v theme-switch-setup >/dev/null 2>&1; then
+            theme-switch-setup >/dev/null 2>&1 || true
+        fi
+    fi
+
+    if command -v theme-switch >/dev/null 2>&1; then
+        theme-switch "$theme"
+    elif [[ -x "$SWITCH_BIN" ]]; then
+        "$SWITCH_BIN" "$theme"
+    else
+        echo "error: theme-switch not found" >&2
+        exit 1
+    fi
+}
+
+run_setup() {
+    if command -v theme-switch-setup >/dev/null 2>&1; then
+        theme-switch-setup
+    elif [[ -x "$SETUP_BIN" ]]; then
+        "$SETUP_BIN"
+    else
+        echo "error: theme-switch-setup not found" >&2
+        exit 1
+    fi
+}
+
+CMD="${1:-list}"
+case "$CMD" in
+    list|get)
+        list_themes_json
+        ;;
+    current)
+        get_current_theme
+        ;;
+    switch|apply)
+        shift
+        switch_theme "$@"
+        ;;
+    setup)
+        run_setup
+        ;;
+    *)
+        echo "Usage: $0 {list|current|switch <theme>|setup}" >&2
+        exit 1
+        ;;
+esac

@@ -120,7 +120,7 @@ Item {
 
     Process {
         id: lockStateProc
-        command: [Quickshell.env("HOME") + "/.local/bin/qs-lockstate-monitor"]
+        command: ["qs-lockstate-monitor"]
         running: true
         stdout: SplitParser {
             onRead: function(line) {

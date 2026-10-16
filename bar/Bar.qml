@@ -39,41 +39,13 @@ PanelWindow {
         color: Theme.withAlpha(Theme.background, Theme.baseOpacity)
     }
 
-    // Bottom hairline separator with center cutout for liquid power menu integration
-    Item {
+    // Bottom hairline separator
+    Rectangle {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         height: 1
-
-        // Center cutout tracking power menu droplet width
-        Item {
-            id: centerCutout
-            anchors.centerIn: parent
-            width: (root.powerService && root.powerService.powerMenuOpen) ? 424 : 0
-            height: 1
-            Behavior on width {
-                NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
-            }
-        }
-
-        // Left hairline segment: extends from screen left to droplet neck
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: centerCutout.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            color: Theme.selection
-        }
-
-        // Right hairline segment: extends from droplet neck to screen right
-        Rectangle {
-            anchors.left: centerCutout.right
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            color: Theme.selection
-        }
+        color: Theme.selection
     }
 
     // Main Bar Content Container
@@ -107,14 +79,6 @@ PanelWindow {
                 id: clockWidget
                 anchors.centerIn: parent
                 powerService: root.powerService
-                opacity: (root.powerService && root.powerService.powerMenuOpen) ? 0.0 : 1.0
-                scale: (root.powerService && root.powerService.powerMenuOpen) ? 0.8 : 1.0
-                Behavior on opacity {
-                    NumberAnimation { duration: 150 }
-                }
-                Behavior on scale {
-                    NumberAnimation { duration: 150 }
-                }
             }
         }
 

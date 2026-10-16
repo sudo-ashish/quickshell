@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# qs-screenshot - Fast, reliable screenshot tool powered by grim, slurp, and wl-copy
+
+TARGET_DIR="${HOME}/Pictures/Screenshot"
+mkdir -p "$TARGET_DIR"
+
+MODE="${1:-save}"
+
+case "$MODE" in
+    clipboard|copy)
+        # Select region with slurp and pipe directly to wl-copy
+        GEOM=$(slurp -d) || exit 0
+        [ -z "$GEOM" ] && exit 0
+
+        if grim -g "$GEOM" - | wl-copy --type image/png; then
+            notify-send -a "Screenshot" -i camera-photo "Screenshot Copied" "Selected region copied to clipboard"
+        fi
+        ;;
+
+    screen|fullscreen)
+        # Fullscreen screenshot
+        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+        FILE="${TARGET_DIR}/myshot-${TIMESTAMP}.png"
+
+        if grim "$FILE"; then
+            wl-copy --type image/png < "$FILE"
+            notify-send -a "Screenshot" -i "$FILE" "Screenshot Saved" "Fullscreen saved to $(basename "$FILE") and copied to clipboard"
+        fi
+        ;;
+
+    window)
+        # Capture focused window via hyprctl geometry
+        ACTIVE_WIN=$(hyprctl activewindow -j 2>/dev/null)
+        if [ -n "$ACTIVE_WIN" ]; then
+            AT=$(echo "$ACTIVE_WIN" | jq -r '.at | "\(.[0]),\(.[1])"')
+            SIZE=$(echo "$ACTIVE_WIN" | jq -r '.size | "\(.[0])x\(.[1])"')
+            GEOM="${AT} ${SIZE}"
+        else
+            GEOM=$(slurp -d) || exit 0
+        fi
+        [ -z "$GEOM" ] && exit 0
+
+        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+        FILE="${TARGET_DIR}/myshot-${TIMESTAMP}.png"
+
+        if grim -g "$GEOM" "$FILE"; then
+            wl-copy --type image/png < "$FILE"
+            notify-send -a "Screenshot" -i "$FILE" "Screenshot Saved" "Window saved to $(basename "$FILE") and copied to clipboard"
+        fi
+        ;;
+
+    save|region|*)
+        # Select region, save to file, copy to clipboard, and show notification
+        GEOM=$(slurp -d) || exit 0
+        [ -z "$GEOM" ] && exit 0
+
+        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+        FILE="${TARGET_DIR}/myshot-${TIMESTAMP}.png"
+
+        if grim -g "$GEOM" "$FILE"; then
+            wl-copy --type image/png < "$FILE"
+            notify-send -a "Screenshot" -i "$FILE" "Screenshot Saved" "Saved to $(basename "$FILE") and copied to clipboard"
+        fi
+        ;;
+esac

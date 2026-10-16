@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# qs-wallpaperswitcher: QuickShell Wallpaper Switcher launcher controller
+set -euo pipefail
+
+CMD="${1:-toggle}"
+QS_DIR="${QUICKSHELL_DIR:-$HOME/.config/quickshell}"
+
+# Choose CLI binary
+if command -v qs >/dev/null 2>&1; then
+  QS_BIN="qs"
+else
+  QS_BIN="quickshell"
+fi
+
+call_ipc() {
+  local target="$1"; shift
+  local method="$1"; shift
+
+  if [[ -d "$QS_DIR" ]] && "$QS_BIN" -p "$QS_DIR" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  if [[ -d "$HOME/quickshell" ]] && "$QS_BIN" -p "$HOME/quickshell" ipc call "$target" "$method" "$@" 2>/dev/null; then
+    return 0
+  fi
+  "$QS_BIN" ipc call "$target" "$method" "$@"
+}
+
+case "$CMD" in
+  toggle)
+    call_ipc wallpaperswitcher toggle
+    ;;
+  open)
+    call_ipc wallpaperswitcher open
+    ;;
+  close)
+    call_ipc wallpaperswitcher close
+    ;;
+  next)
+    call_ipc wallpaperswitcher next
+    ;;
+  prev)
+    call_ipc wallpaperswitcher prev
+    ;;
+  select)
+    call_ipc wallpaperswitcher select "${2:-0}"
+    ;;
+  apply)
+    call_ipc wallpaperswitcher apply "${2:-}"
+    ;;
+  state)
+    call_ipc wallpaperswitcher getState
+    ;;
+  *)
+    call_ipc wallpaperswitcher toggle
+    ;;
+esac

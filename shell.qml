@@ -22,6 +22,8 @@ ShellRoot {
     property NetworkService networkService: NetworkService { }
     property BluetoothService bluetoothService: BluetoothService { }
     property PowerService powerService: PowerService { }
+    property ThemeSwitcherService themeSwitcherService: ThemeSwitcherService { }
+    property WallpaperSwitcherService wallpaperSwitcherService: WallpaperSwitcherService { }
 
     IpcHandler {
         target: "powerconfirm"
@@ -46,10 +48,12 @@ ShellRoot {
         powerService: root.powerService
     }
 
-    // Caelestia-style Liquid Droplet Power Menu (Top-Center Droplet)
+    // Bottom Pop-up Unified Menu (Power Session + Theme Switcher + Wallpaper Switcher)
     PowerMenu {
-        id: powerMenu
+        id: bottomMenu
         powerService: root.powerService
+        themeService: root.themeSwitcherService
+        wallpaperService: root.wallpaperSwitcherService
     }
 
     // Polkit Authentication Agent (centered overlay)

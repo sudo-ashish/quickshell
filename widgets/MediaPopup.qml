@@ -176,19 +176,15 @@ PopupWindow {
         }
     }
 
-    // Mask item used by MultiEffect to strictly round the content inside the card
-    Item {
+    // Direct Rectangle mask used by MultiEffect to strictly round the content inside the card
+    Rectangle {
         id: cardMask
         width: innerContent.width
         height: innerContent.height
+        radius: Math.max(10, cardRect.radius - 2)
+        color: "black"
         layer.enabled: true
         visible: false
-
-        Rectangle {
-            anchors.fill: parent
-            radius: Math.max(10, cardRect.radius - 2)
-            color: Theme.bright_foreground
-        }
     }
 
     // Outer Card Container matching Samsung One UI 7 reference image
@@ -197,7 +193,6 @@ PopupWindow {
         anchors.fill: parent
         radius: Math.round(13 + (24 - 13) * Math.min(1.0, root.animProgress))
         color: Theme.dark_background
-        clip: true
 
         transformOrigin: Item.TopLeft
         scale: 0.30 + 0.70 * root.animProgress

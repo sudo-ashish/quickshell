@@ -219,7 +219,6 @@ PanelWindow {
         color: Theme.withAlpha(Theme.dark_background, Theme.baseOpacity)
         border.color: Theme.selection
         border.width: 1
-        clip: true
 
         MouseArea {
             anchors.fill: parent
@@ -246,17 +245,13 @@ PanelWindow {
                 anchors.top: parent.top
 
                 // Mask defining smooth rounded corners (radius 18)
-                Item {
+                Rectangle {
                     id: albumCoverMask
                     anchors.fill: parent
+                    radius: 18
+                    color: "black"
                     layer.enabled: true
                     visible: false
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 18
-                        color: Theme.bright_foreground
-                    }
                 }
 
                 // Underlying fallback when no artwork is available

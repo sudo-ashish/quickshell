@@ -21,7 +21,6 @@ Item {
     width: implicitWidth
 
     visible: width > 0 || opacity > 0
-    clip: true
 
     Behavior on implicitWidth {
         NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
@@ -91,7 +90,6 @@ Item {
                 id: miniArtBg
                 anchors.fill: parent
                 radius: 5
-                clip: true
                 color: Theme.dark_background
 
                 Text {
@@ -101,6 +99,15 @@ Item {
                     font.pixelSize: 10
                     color: Theme.muted
                     visible: !miniArt.visible
+                }
+
+                Rectangle {
+                    id: miniArtMask
+                    anchors.fill: parent
+                    radius: 5
+                    color: "black"
+                    layer.enabled: true
+                    visible: false
                 }
 
                 Image {
@@ -114,6 +121,12 @@ Item {
                     sourceSize.height: 36
                     mipmap: true
                     smooth: true
+
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        maskEnabled: true
+                        maskSource: miniArtMask
+                    }
                 }
             }
 
@@ -123,6 +136,7 @@ Item {
                 color: "transparent"
                 border.color: Theme.selection
                 border.width: 1
+                z: 2
             }
         }
 
