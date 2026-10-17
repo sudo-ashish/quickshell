@@ -71,7 +71,6 @@ else
   echo "==> All system packages already installed."
 fi
 
-# ──────────────────────────────────────────────────────────────────────────────
 # 2. Enable system services
 # ──────────────────────────────────────────────────────────────────────────────
 echo "==> Enabling user services..."
