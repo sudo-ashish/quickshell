@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import "../theme"
 import "AudioModel.js" as Model
 
 QtObject {
@@ -87,17 +88,13 @@ QtObject {
     }
 
     readonly property string icon: {
-        if (!sink || !sink.audio) return "󰝟"
-        if (Model.isHeadphones(sink)) return "󰋋"
-        if (muted || volume === 0) return "󰝟"
-        if (volume < 33) return "󰕿"
-        if (volume < 66) return "󰖀"
-        return "󰕾"
+        if (!sink || !sink.audio) return Icons.volumeMute
+        return Icons.volumeLevel(volume, muted, Model.isHeadphones(sink))
     }
 
     readonly property string inputIcon: {
-        if (!source || !source.audio) return "󰍭"
-        return inputMuted ? "󰍭" : "󰍬"
+        if (!source || !source.audio) return Icons.micOff
+        return Icons.micLevel(inputMuted)
     }
 
     readonly property bool anyAudible: (!muted && volume > 0) || (!inputMuted && inputVolume > 0)

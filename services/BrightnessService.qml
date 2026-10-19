@@ -120,11 +120,7 @@ QtObject {
     readonly property var textSizeStops: [9, 10, 11, 12, 14, 16, 20]
     readonly property var scalePresets: ["1", "1.25", "1.6", "2", "3", "4"]
 
-    readonly property string icon: {
-        if (brightness < 33) return "󰃞"
-        if (brightness < 66) return "󰃟"
-        return "󰃠"
-    }
+    readonly property string icon: Icons.brightnessLevel(root.brightness)
 
     function calculateBrightnessName(pct) {
         var p = Math.round(pct)

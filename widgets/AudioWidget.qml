@@ -12,6 +12,8 @@ Item {
 
     required property AudioService service
 
+    property int iconSize: Appearance.audioIconSize
+
     implicitWidth: audioButton.implicitWidth
     implicitHeight: audioButton.implicitHeight
     width: implicitWidth
@@ -25,6 +27,7 @@ Item {
     BarButton {
         id: audioButton
         icon: root.service.icon
+        iconSize: root.iconSize
         accentActive: root.service.volume > 0 && !root.service.muted
         customColor: root.service.muted ? Theme.red : Theme.foreground
         active: audioPopup.open

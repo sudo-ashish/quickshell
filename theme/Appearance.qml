@@ -27,6 +27,21 @@ QtObject {
     property int barButtonHeight: barHeight - 4
 
     // =========================================================================
+    // Bar Widget Icons & Display Options
+    // =========================================================================
+    // Toggle whether battery percentage is shown on the bar next to the icon (default: false)
+    property bool batteryShowPercentage: false
+
+    // Individual bar widget icon sizes (px)
+    property int barIconSize: Icons.barIconSize
+    property int batteryIconSize: 22
+    property int audioIconSize: root.barIconSize
+    property int bluetoothIconSize: root.barIconSize
+    property int networkIconSize: root.barIconSize
+    property int monitorIconSize: root.barIconSize
+    property int workspacesIconSize: Icons.workspacesIconSize
+
+    // =========================================================================
     // Corner Radii
     // =========================================================================
     property int radiusXs: 2
@@ -157,7 +172,7 @@ QtObject {
     property int mediaPopupWidth: 350
     property int mediaPopupHeight: 195
     property int mediaIslandWidth: 340
-    property int mediaIslandHeight: 180
+    property int mediaIslandHeight: 140
     property int mediaIslandRadius: 22
 
     // =========================================================================

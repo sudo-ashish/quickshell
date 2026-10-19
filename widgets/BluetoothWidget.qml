@@ -11,6 +11,8 @@ Item {
 
     required property BluetoothService service
 
+    property int iconSize: Appearance.bluetoothIconSize
+
     implicitWidth: btButton.implicitWidth
     implicitHeight: btButton.implicitHeight
     width: implicitWidth
@@ -27,6 +29,7 @@ Item {
     BarButton {
         id: btButton
         icon: root.service.icon
+        iconSize: root.iconSize
         accentActive: root.service.connectedDevices.length > 0
         customColor: root.service.bluetoothEnabled ? (root.service.connectedDevices.length > 0 ? Theme.accent : Theme.foreground) : Theme.muted
         active: btPopup.open

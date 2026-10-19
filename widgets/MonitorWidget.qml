@@ -10,6 +10,8 @@ Item {
 
     required property BrightnessService service
 
+    property int iconSize: Appearance.monitorIconSize
+
     implicitWidth: monButton.implicitWidth
     implicitHeight: monButton.implicitHeight
     width: implicitWidth
@@ -18,6 +20,7 @@ Item {
     BarButton {
         id: monButton
         icon: root.service.icon
+        iconSize: root.iconSize
         accentActive: false
         active: monPopup.open
         onClicked: {

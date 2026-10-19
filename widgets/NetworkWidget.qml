@@ -12,6 +12,7 @@ Item {
     property string selectedSsid: ""
     property bool showPasswordInput: false
     property bool showQrView: false
+    property int iconSize: Appearance.networkIconSize
 
     implicitWidth: netButton.implicitWidth
     implicitHeight: netButton.implicitHeight
@@ -21,6 +22,7 @@ Item {
     BarButton {
         id: netButton
         icon: root.service.icon
+        iconSize: root.iconSize
         accentActive: root.service.wifiEnabled && root.service.currentSsid !== ""
         active: netPopup.open
         onClicked: {

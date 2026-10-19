@@ -7,6 +7,8 @@ Row {
 
     required property WorkspacesService service
 
+    property int iconSize: Appearance.workspacesIconSize
+
     spacing: 2
     anchors.verticalCenter: parent.verticalCenter
 
@@ -39,7 +41,7 @@ Row {
                 // If active, show filled block symbol ■ (like running machine!) else number
                 text: wsBtn.isActive ? "" : String(wsBtn.modelData)
                 font.family: wsBtn.isActive ? Icons.effectiveFont("") : Fonts.uiFont
-                font.pixelSize: wsBtn.isActive ? Fonts.sizeMedium : Fonts.sizeRegular
+                font.pixelSize: wsBtn.isActive ? root.iconSize : Fonts.sizeRegular
                 font.weight: wsBtn.isActive ? Fonts.weightBold : Fonts.weightNormal
                 color: {
                     if (wsBtn.isActive) return Theme.accent

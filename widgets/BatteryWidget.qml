@@ -10,6 +10,9 @@ Item {
     required property BatteryService batteryService
     required property PowerService powerService
 
+    property bool showPercentage: Appearance.batteryShowPercentage
+    property int iconSize: Appearance.batteryIconSize
+
     implicitWidth: batButton.implicitWidth
     implicitHeight: batButton.implicitHeight
     width: implicitWidth
@@ -18,7 +21,8 @@ Item {
     BarButton {
         id: batButton
         icon: root.batteryService.icon
-        text: root.batteryService.capacity + "%"
+        iconSize: root.iconSize
+        text: root.showPercentage ? (root.batteryService.capacity + "%") : ""
         accentActive: root.batteryService.isCharging
         customColor: {
             if (root.batteryService.isCharging) return Theme.accent

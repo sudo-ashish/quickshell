@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../theme"
 
 QtObject {
     id: root
@@ -23,11 +24,7 @@ QtObject {
     property var availableDevices: []
     property bool scanning: false
 
-    readonly property string icon: {
-        if (!bluetoothEnabled) return "󰂲"
-        if (connectedDevices.length > 0) return "󰂱"
-        return "󰂯"
-    }
+    readonly property string icon: Icons.bluetoothStatus(root.bluetoothEnabled, root.connectedDevices.length)
 
     // Dynamic Bluetooth status phrases
     property int phraseIndex: 3

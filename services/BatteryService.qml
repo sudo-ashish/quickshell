@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../theme"
 
 QtObject {
     id: root
@@ -15,20 +16,7 @@ QtObject {
     property string timeToFull: "-"
     property string chargingRate: "-"
 
-    readonly property string icon: {
-        if (isCharging) return "󰂄"
-        if (capacity >= 95) return "󰁹"
-        if (capacity >= 85) return "󰂂"
-        if (capacity >= 75) return "󰂁"
-        if (capacity >= 65) return "󰂀"
-        if (capacity >= 55) return "󰁿"
-        if (capacity >= 45) return "󰁾"
-        if (capacity >= 35) return "󰁽"
-        if (capacity >= 25) return "󰁼"
-        if (capacity >= 15) return "󰁻"
-        if (capacity >= 5)  return "󰁺"
-        return "󰂃"
-    }
+    readonly property string icon: Icons.battery(root.capacity, root.isCharging)
 
     function refresh() {
         if (!getBatteryProc.running) getBatteryProc.running = true

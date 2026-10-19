@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../theme"
 
 QtObject {
     id: root
@@ -36,22 +37,10 @@ QtObject {
 
     readonly property var dnsProviders: ["DHCP", "Cloudflare", "Google"]
 
-    readonly property string icon: {
-        if (!wifiEnabled && connectionType === "wifi") return "󰤮"
-        if (connectionType === "ethernet") return "󰈀"
-        if (!currentSsid) return "󰤭"
-        if (signalStrength >= 75) return "󰤨"
-        if (signalStrength >= 50) return "󰤥"
-        if (signalStrength >= 25) return "󰤢"
-        return "󰤟"
-    }
+    readonly property string icon: Icons.network(root.connectionType, root.wifiEnabled, root.currentSsid, root.signalStrength)
 
     function wifiIconFor(signal) {
-        var sig = parseInt(signal, 10) || 0
-        if (sig >= 75) return "󰤨"
-        if (sig >= 50) return "󰤥"
-        if (sig >= 25) return "󰤢"
-        return "󰤟"
+        return Icons.wifiSignal(signal)
     }
 
     function formatBytes(bytes) {
