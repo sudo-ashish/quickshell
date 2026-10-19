@@ -213,7 +213,7 @@ PanelWindow {
     }
 
     HyprlandFocusGrab {
-        active: root.isOpen
+        active: false
         windows: [root]
         onCleared: root.close()
     }

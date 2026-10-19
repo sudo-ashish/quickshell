@@ -267,7 +267,7 @@ PanelWindow {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // IPC Handler for Power Menu (qs-powermenu)
+    // IPC Handler for Power Menu (qdeck-powermenu)
     // ─────────────────────────────────────────────────────────────────────────
     IpcHandler {
         target: "powermenu"
@@ -320,7 +320,7 @@ PanelWindow {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // IPC Handler for Theme Switcher (qs-themeswitcher)
+    // IPC Handler for Theme Switcher (qdeck-themeswitcher)
     // ─────────────────────────────────────────────────────────────────────────
     IpcHandler {
         target: "themeswitcher"
@@ -389,7 +389,7 @@ PanelWindow {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // IPC Handler for Wallpaper Switcher (qs-wallpaperswitcher)
+    // IPC Handler for Wallpaper Switcher (qdeck-wallpaperswitcher)
     // ─────────────────────────────────────────────────────────────────────────
     IpcHandler {
         target: "wallpaperswitcher"
@@ -471,9 +471,9 @@ PanelWindow {
         }
     }
 
-    // Hyprland focus grab for compositor-level dismissal on outside clicks
+    // Hyprland focus grab disabled so PowerMenu stays open during screenshot tools (slurp/grim)
     HyprlandFocusGrab {
-        active: root.isOpen && !openAnim.running
+        active: false
         windows: [root]
         onCleared: root.close()
     }

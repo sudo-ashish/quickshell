@@ -74,7 +74,7 @@ QtObject {
     function setDns(provider) {
         if (!provider) return
         root.dnsProvider = provider
-        Quickshell.execDetached(["qs-dns", provider])
+        Quickshell.execDetached(["qdeck-dns", provider])
         refreshTimer.restart()
     }
 
@@ -211,10 +211,10 @@ QtObject {
         if (!dnsProc.running) dnsProc.running = true
     }
 
-    // 1. Live status & telemetry from qs-network-status --verbose
+    // 1. Live status & telemetry from qdeck-network-status --verbose
     property Process detailsProc: Process {
         id: detailsProc
-        command: ["qs-network-status", "--verbose"]
+        command: ["qdeck-network-status", "--verbose"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {
@@ -284,7 +284,7 @@ QtObject {
     // 2. DNS Provider query
     property Process dnsProc: Process {
         id: dnsProc
-        command: ["qs-dns"]
+        command: ["qdeck-dns"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {
@@ -299,7 +299,7 @@ QtObject {
     // 3. QR Code generator
     property Process qrProc: Process {
         id: qrProc
-        command: ["qs-network-qr", "--meta"]
+        command: ["qdeck-network-qr", "--meta"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {

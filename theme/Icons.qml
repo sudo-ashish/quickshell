@@ -5,37 +5,26 @@ import Quickshell
 QtObject {
     id: root
 
-    // =========================================================================
-    // Icon Font Configurations
-    // =========================================================================
-    // Active icon font family. Defaults to Fonts.iconFont ("JetBrainsMono Nerd Font")
+    // Icon fonts configuration
     property string iconFont: Fonts.iconFont
-
-    // Alternate symbol font family (e.g. Google Material Symbols Rounded)
     property string symbolFont: (materialSymbolsLoader.name && materialSymbolsLoader.name.length > 0) ? materialSymbolsLoader.name : Fonts.symbolFont
-
-    // Switch between Nerd Font glyphs (default, false) and Material Symbols ligatures (true)
     property bool useMaterialSymbols: true
 
-    // Local font loader for Google Material Symbols Rounded font
+    // Local font loader for Google Material Symbols Rounded
     property FontLoader materialSymbolsLoader: FontLoader {
         source: "file://" + Quickshell.env("HOME") + "/.local/share/fonts/MaterialSymbolsRounded.ttf"
     }
 
-    // =========================================================================
-    // Semantic Icon Sizes (Reactively scaled from typography tokens)
-    // =========================================================================
-    readonly property int sizeXs: Fonts.sizeXs         // ~9-10px
-    readonly property int sizeSmall: Fonts.sizeSmall   // ~11-12px
-    readonly property int sizeNormal: Fonts.sizeLarge  // ~16px
-    readonly property int sizeMedium: Fonts.sizeTitle  // ~20-22px
-    readonly property int sizeLarge: Fonts.sizeDisplay // ~26-28px
-    readonly property int sizeDisplay: Fonts.sizeHero  // ~32-34px
-    readonly property int sizeHero: Fonts.sizeGiant    // ~38px
+    // Semantic icon sizes
+    readonly property int sizeXs: Fonts.sizeXs
+    readonly property int sizeSmall: Fonts.sizeSmall
+    readonly property int sizeNormal: Fonts.sizeLarge
+    readonly property int sizeMedium: Fonts.sizeTitle
+    readonly property int sizeLarge: Fonts.sizeDisplay
+    readonly property int sizeDisplay: Fonts.sizeHero
+    readonly property int sizeHero: Fonts.sizeGiant
 
-    // =========================================================================
-    // Individual Widget & Component Icon Sizes
-    // =========================================================================
+    // Component-level icon sizes
     property int barIconSize: root.sizeNormal
     property int batteryIconSize: root.barIconSize
     property int audioIconSize: root.barIconSize
@@ -45,9 +34,7 @@ QtObject {
     property int workspacesIconSize: root.sizeNormal
     property int mediaIconSize: root.sizeSmall
 
-    // =========================================================================
-    // Semantic Icon Glyphs
-    // =========================================================================
+    // Core action glyphs
     // Core actions
     readonly property string search: root.useMaterialSymbols ? "search" : ""
     readonly property string close: root.useMaterialSymbols ? "close" : "󰅖"
@@ -100,7 +87,7 @@ QtObject {
     readonly property string keyboard: root.useMaterialSymbols ? "keyboard" : "󰌌"
     readonly property string numlock: root.useMaterialSymbols ? "pin" : "󰎠"
     readonly property string trackpad: root.useMaterialSymbols ? "touchpad" : "󰟸"
-    readonly property string trackpadOff: root.useMaterialSymbols ? "touchpad_off" : "󰤳"
+    readonly property string trackpadOff: root.useMaterialSymbols ? "touchpad_mouse_off" : "󰤳"
 
     // Applications & UI
     readonly property string apps: root.useMaterialSymbols ? "apps" : "󰀻"
@@ -110,7 +97,7 @@ QtObject {
     readonly property string palette: root.useMaterialSymbols ? "palette" : "󰏘"
     readonly property string wallpaper: root.useMaterialSymbols ? "wallpaper" : "󰋩"
 
-    // Helper function to dynamically resolve battery icon by capacity and charging state
+    // Battery icon resolver by capacity and charging state
     function battery(capacity, isCharging) {
         if (root.useMaterialSymbols) {
             if (isCharging) return root.batteryCharging
@@ -139,15 +126,15 @@ QtObject {
         }
     }
 
-    // Helper function to dynamically resolve Wi-Fi signal level icon
+    // Wi-Fi signal resolver (Material Symbols arc glyphs have 3 signal stages: wifi, wifi_2_bar, wifi_1_bar)
     function wifiSignal(signal) {
         var sig = parseInt(signal, 10) || 0
         var isMat = root.useMaterialSymbols || (typeof root.wifi === "string" && root.wifi.length > 0 && root.wifi.charCodeAt(0) < 128)
         if (isMat) {
-            if (sig >= 75) return root.wifi || "wifi"
-            if (sig >= 50) return "wifi_2_bar"
-            if (sig >= 25) return "wifi_1_bar"
-            return "network_wifi_1_bar"
+            if (sig >= 66) return root.wifi || "wifi"
+            if (sig >= 33) return "wifi_2_bar"
+            if (sig > 0) return "wifi_1_bar"
+            return root.wifiOff || "wifi_off"
         } else {
             if (sig >= 75) return root.wifi || "󰤨"
             if (sig >= 50) return "󰤥"

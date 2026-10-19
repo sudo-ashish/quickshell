@@ -156,7 +156,7 @@ Item {
         var entry = popupModel.get(index)
         if (!entry) return
 
-        // 1. Try qs-exec-argv hint if provided
+        // 1. Try qdeck-exec-argv hint if provided
         var argv = NotificationLogic.parseExecArgv(entry.execArgv)
         if (argv && argv.length > 0) {
             runProcess(argv)

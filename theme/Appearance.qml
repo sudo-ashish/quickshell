@@ -5,31 +5,18 @@ import Quickshell
 QtObject {
     id: root
 
-    // =========================================================================
-    // Bar Dimensions & Layout
-    // =========================================================================
-    // Bar height reactively derived from base text size (default ~30px at base 12)
+    // Bar dimensions and layout
     property int barHeight: Math.max(26, Math.round(Fonts.baseTextSize * 2.5))
-
-    // Bar corner radius (0 for edge-to-edge top bar, >0 for floating pill bar)
-    property int barRadius: 0
-
-    // Horizontal margins for the outer bar window
+    property int barRadius: 16
     property int barMarginHorizontal: 12
-
-    // Internal spacing between status widgets in the bar
     property int barSpacing: 4
-
-    // Spacing between left bar sections (workspaces, now-playing pill)
     property int barSectionSpacing: 8
-
-    // Standard button height on the bar
     property int barButtonHeight: barHeight - 4
 
-    // =========================================================================
-    // Bar Widget Icons & Display Options
-    // =========================================================================
-    // Toggle whether battery percentage is shown on the bar next to the icon (default: false)
+    // Bar border toggle (off by default)
+    property bool barBorder: false
+
+    // Bar widget display options
     property bool batteryShowPercentage: false
 
     // Individual bar widget icon sizes (px)
@@ -39,7 +26,17 @@ QtObject {
     property int bluetoothIconSize: root.barIconSize
     property int networkIconSize: root.barIconSize
     property int monitorIconSize: root.barIconSize
-    property int workspacesIconSize: Icons.workspacesIconSize
+
+    // Hyprland Workspaces Indicator Controls
+    property int workspacesPaddingHorizontal: 4
+    property int workspacesPaddingVertical: 3
+    property int workspacesMargin: 0
+    property int workspacesSpacing: 4
+    property int workspacesDotSize: 8
+    property int workspacesStarSize: 22
+    property int workspacesIconSize: root.workspacesStarSize
+    property int workspacesCapsuleWidth: 24
+    property int workspacesActiveCapsuleWidth: 46
 
     // =========================================================================
     // Corner Radii

@@ -120,7 +120,7 @@ Item {
 
     Process {
         id: lockStateProc
-        command: ["qs-lockstate-monitor"]
+        command: ["qdeck-lockstate-monitor"]
         running: true
         stdout: SplitParser {
             onRead: function(line) {

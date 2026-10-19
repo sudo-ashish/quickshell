@@ -110,7 +110,7 @@ PanelWindow {
         }
     }
 
-    // IPC interface for qs-launcher CLI compatibility
+    // IPC interface for qdeck-launcher CLI compatibility
     IpcHandler {
         target: "launcher"
         function open(): void { root.open("") }
@@ -136,7 +136,7 @@ PanelWindow {
     }
 
     HyprlandFocusGrab {
-        active: root.isOpen
+        active: false
         windows: [root]
         onCleared: root.close()
     }

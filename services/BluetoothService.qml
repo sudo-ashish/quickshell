@@ -129,7 +129,7 @@ QtObject {
             root.devices = []
             root.scanning = false
         }
-        Quickshell.execDetached(["qs-bluetooth", "power", next ? "on" : "off"])
+        Quickshell.execDetached(["qdeck-bluetooth", "power", next ? "on" : "off"])
         refreshTimer.restart()
     }
 
@@ -140,7 +140,7 @@ QtObject {
         root.connectingMac = mac
         root.pairingMac = ""
         actionTimeoutTimer.restart()
-        actionProc.command = ["qs-bluetooth", "connect", mac]
+        actionProc.command = ["qdeck-bluetooth", "connect", mac]
         actionProc.running = true
     }
 
@@ -151,7 +151,7 @@ QtObject {
         root.pairingMac = mac
         root.connectingMac = ""
         actionTimeoutTimer.restart()
-        actionProc.command = ["qs-bluetooth", "pair", mac]
+        actionProc.command = ["qdeck-bluetooth", "pair", mac]
         actionProc.running = true
     }
 
@@ -164,7 +164,7 @@ QtObject {
             root.actionErrorMac = ""
             root.actionErrorMessage = ""
         }
-        Quickshell.execDetached(["qs-bluetooth", "disconnect", mac])
+        Quickshell.execDetached(["qdeck-bluetooth", "disconnect", mac])
         refreshTimer.restart()
     }
 
@@ -176,7 +176,7 @@ QtObject {
             root.actionErrorMac = ""
             root.actionErrorMessage = ""
         }
-        Quickshell.execDetached(["qs-bluetooth", "forget", mac])
+        Quickshell.execDetached(["qdeck-bluetooth", "forget", mac])
         refreshTimer.restart()
     }
 
@@ -184,7 +184,7 @@ QtObject {
         if (!root.bluetoothEnabled) return
         root.scanning = true
         var t = timeoutSec ? String(timeoutSec) : "5"
-        Quickshell.execDetached(["qs-bluetooth", "scan", t])
+        Quickshell.execDetached(["qdeck-bluetooth", "scan", t])
         scanTimer.restart()
     }
 
@@ -249,7 +249,7 @@ QtObject {
 
     property Process statusProc: Process {
         id: statusProc
-        command: ["qs-bluetooth", "status"]
+        command: ["qdeck-bluetooth", "status"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {
@@ -280,7 +280,7 @@ QtObject {
 
     property Process devicesProc: Process {
         id: devicesProc
-        command: ["qs-bluetooth", "list"]
+        command: ["qdeck-bluetooth", "list"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {

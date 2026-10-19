@@ -2,7 +2,7 @@
 # QDeck Color Configuration
 # ==============================================================================
 # This file defines the active color tokens used across the shell.
-# Themes managed by qs-theme-switch provide their own colors.toml in ~/.config/themes/current/.
+# Themes managed by qdeck-theme-switch provide their own colors.toml in ~/.config/themes/current/.
 # If running without a current theme symlink, this file serves as the default palette.
 
 # ── Primary Accents ───────────────────────────────────────────────────────────

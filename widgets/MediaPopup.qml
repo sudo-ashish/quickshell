@@ -142,7 +142,7 @@ PopupWindow {
     color: "transparent"
 
     HyprlandFocusGrab {
-        active: root.open
+        active: false
         windows: [root]
         onCleared: {
             root.lastClearedTime = Date.now()

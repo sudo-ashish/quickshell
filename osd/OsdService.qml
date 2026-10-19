@@ -43,7 +43,7 @@ Item {
             return "ok"
         }
 
-        // Generic / backwards-compatibility methods for qs-osd / scripts
+        // Generic / backwards-compatibility methods for qdeck-osd / scripts
         function display(payloadJson: string): string {
             if (root.osd && root.osd.open) {
                 root.osd.open(payloadJson)

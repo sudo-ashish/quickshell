@@ -195,17 +195,37 @@ PanelWindow {
     readonly property real cardX: {
         var _ = root.open
         if (!root.anchorItem) return 10
+
+        var win = (root.anchorItem.QsWindow && root.anchorItem.QsWindow.window) ? root.anchorItem.QsWindow.window : null
+        var screenW = (win && win.screen) ? win.screen.width : root.width
+
+        var barScreenX = 0
+        if (win) {
+            if (win.anchors && win.anchors.left) {
+                barScreenX = (win.margins && win.margins.left) ? win.margins.left : 0
+            } else {
+                barScreenX = Math.round((screenW - win.width) / 2)
+            }
+        }
+
         var pt = root.anchorItem.mapToItem(null, 0, 0)
         var margin = 10
-        var clampedX = Math.max(margin, Math.min(pt.x, root.width - root.contentWidth - margin))
-        return clampedX
+        var itemScreenX = barScreenX + pt.x
+        return Math.max(margin, Math.min(itemScreenX, screenW - root.contentWidth - margin))
     }
 
     readonly property real cardY: {
         var _ = root.open
         if (!root.anchorItem) return Theme.barHeight + 6
+
+        var win = (root.anchorItem.QsWindow && root.anchorItem.QsWindow.window) ? root.anchorItem.QsWindow.window : null
+        var barScreenY = 0
+        if (win && win.margins && win.margins.top) {
+            barScreenY = win.margins.top
+        }
+
         var pt = root.anchorItem.mapToItem(null, 0, 0)
-        return Math.max(Theme.barHeight + 6, pt.y + root.anchorItem.height + 6)
+        return Math.max(Theme.barHeight + 6, barScreenY + pt.y + root.anchorItem.height + 6)
     }
 
     // Outer Frosted Container (Pixel-perfect ColorOS / Dynamic Island Live Alert card)

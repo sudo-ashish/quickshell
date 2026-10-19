@@ -12,7 +12,7 @@ QtObject {
     property string switchingTo: ""
     property bool isOpen: false
 
-    readonly property string listScriptPath: "qs-wallpaper"
+    readonly property string listScriptPath: "qdeck-wallpaper"
     readonly property int middleIndex: root.wallpapers ? Math.floor(root.wallpapers.length / 2) : 0
 
     function refresh() {

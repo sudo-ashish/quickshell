@@ -2,61 +2,136 @@ import QtQuick
 import "../theme"
 import "../services"
 
-Row {
+// Outer pill container for workspaces on the bar
+Rectangle {
     id: root
 
     required property WorkspacesService service
 
-    property int iconSize: Appearance.workspacesIconSize
+    implicitHeight: Appearance.barButtonHeight
+    implicitWidth: wsRow.implicitWidth + (Appearance.workspacesPaddingHorizontal * 2)
+    radius: height / 2
 
-    spacing: 2
-    anchors.verticalCenter: parent.verticalCenter
+    color: Theme.withAlpha(Theme.dark_background, 0.75)
+    border.color: Appearance.barBorder ? Theme.selection : "transparent"
+    border.width: Appearance.barBorder ? Appearance.borderWidthThin : 0
+    antialiasing: true
 
-    Repeater {
-        model: root.service.workspaceIds
-
-        Rectangle {
-            id: wsBtn
-            required property int modelData
-
-            readonly property bool isActive: root.service.activeWorkspaceId === modelData
-            readonly property bool isOccupied: !!root.service.occupiedWorkspaces[modelData]
-
-            width: 24
-            height: 24
-            radius: Appearance.radiusSmall
-
-            color: {
-                if (isActive) return Theme.selection
-                if (wsMouse.containsMouse) return Theme.lighter_background
-                return "transparent"
+    WheelHandler {
+        onWheel: (event) => {
+            if (event.angleDelta.y < 0) {
+                root.service.next()
+            } else if (event.angleDelta.y > 0) {
+                root.service.prev()
             }
+        }
+    }
 
-            Behavior on color {
-                ColorAnimation { duration: Appearance.animDurationNormal }
-            }
+    Row {
+        id: wsRow
+        anchors.centerIn: parent
+        spacing: Appearance.workspacesSpacing
+        height: parent.height - (Appearance.workspacesPaddingVertical * 2)
 
-            Text {
-                anchors.centerIn: parent
-                // If active, show filled block symbol ■ (like running machine!) else number
-                text: wsBtn.isActive ? "" : String(wsBtn.modelData)
-                font.family: wsBtn.isActive ? Icons.effectiveFont("") : Fonts.uiFont
-                font.pixelSize: wsBtn.isActive ? root.iconSize : Fonts.sizeRegular
-                font.weight: wsBtn.isActive ? Fonts.weightBold : Fonts.weightNormal
+        Repeater {
+            model: root.service.workspaceIds
+
+            Rectangle {
+                id: wsCapsule
+                required property int modelData
+
+                readonly property bool isActive: root.service.activeWorkspaceId === modelData
+                readonly property bool isOccupied: !!root.service.occupiedWorkspaces[modelData]
+
+                height: parent.height
+                width: isActive ? Appearance.workspacesActiveCapsuleWidth : Appearance.workspacesCapsuleWidth
+                radius: height / 2
+                antialiasing: true
+
                 color: {
-                    if (wsBtn.isActive) return Theme.accent
-                    if (wsBtn.isOccupied) return Theme.foreground
-                    return Theme.muted
+                    if (isActive) return Theme.accent
+                    if (wsMouse.containsMouse) return Theme.withAlpha(Theme.foreground, 0.16)
+                    return Theme.withAlpha(Theme.foreground, 0.08)
                 }
-                opacity: (wsBtn.isActive || wsBtn.isOccupied) ? 1.0 : 0.5
-            }
 
-            MouseArea {
-                id: wsMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.service.switchTo(wsBtn.modelData)
+                Behavior on width {
+                    NumberAnimation {
+                        duration: Appearance.animDurationNormal
+                        easing.type: Easing.OutCubic
+                    }
+                }
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: Appearance.animDurationNormal
+                    }
+                }
+
+                // Inactive workspace indicator: circular dot (bright when occupied, dimmed when empty)
+                Rectangle {
+                    id: dot
+                    anchors.centerIn: parent
+                    width: Appearance.workspacesDotSize
+                    height: Appearance.workspacesDotSize
+                    radius: width / 2
+                    visible: !wsCapsule.isActive
+                    color: "#ffffff"
+                    opacity: wsCapsule.isOccupied ? 1.0 : 0.28
+                    antialiasing: true
+
+                    Behavior on opacity {
+                        NumberAnimation { duration: Appearance.animDurationNormal }
+                    }
+                }
+
+                // Active workspace indicator: 4-pointed concave star icon
+                Canvas {
+                    id: starCanvas
+                    anchors.centerIn: parent
+                    width: Appearance.workspacesStarSize
+                    height: Appearance.workspacesStarSize
+                    visible: wsCapsule.isActive
+                    renderTarget: Canvas.FramebufferObject
+                    antialiasing: true
+
+                    property color starColor: Theme.dark_background
+
+                    onStarColorChanged: requestPaint()
+
+                    Connections {
+                        target: wsCapsule
+                        function onIsActiveChanged() {
+                            if (wsCapsule.isActive) {
+                                starCanvas.requestPaint()
+                            }
+                        }
+                    }
+
+                    onPaint: {
+                        var ctx = getContext("2d");
+                        ctx.reset();
+                        var cx = width / 2;
+                        var cy = height / 2;
+                        var r = width / 2;
+                        ctx.fillStyle = starColor;
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy - r);
+                        ctx.quadraticCurveTo(cx, cy, cx + r, cy);
+                        ctx.quadraticCurveTo(cx, cy, cx, cy + r);
+                        ctx.quadraticCurveTo(cx, cy, cx - r, cy);
+                        ctx.quadraticCurveTo(cx, cy, cx, cy - r);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                }
+
+                MouseArea {
+                    id: wsMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.service.switchTo(wsCapsule.modelData)
+                }
             }
         }
     }

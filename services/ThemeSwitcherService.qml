@@ -12,7 +12,7 @@ QtObject {
     property string switchingTo: ""
     property bool isOpen: false
 
-    readonly property string listScriptPath: "qs-theme-switch"
+    readonly property string listScriptPath: "qdeck-theme-switch"
     readonly property string currentThemeLink: Quickshell.env("HOME") + "/.config/themes/current"
 
     function refresh() {

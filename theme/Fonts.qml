@@ -27,7 +27,7 @@ QtObject {
     // Root text size (in pixels). Changing this dynamically scales all derived sizes.
     property int baseTextSize: 12
 
-    // Watcher for external text-size configuration updates (e.g. from qs-display-text-size)
+    // Watcher for external text-size configuration updates (e.g. from qdeck-display-text-size)
     property FileView textSizeFile: FileView {
         path: Quickshell.env("HOME") + "/.config/quickshell/text-size"
         watchChanges: true

@@ -1,3 +1,6 @@
+/*
+ * QDeck: Lightweight Wayland/evdev lockstate monitor for keyboard LEDs
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>

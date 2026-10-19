@@ -163,7 +163,7 @@ QtObject {
         var clamped = Math.max(1, Math.min(100, Math.round(percent)))
         root.brightness = clamped
         root.brightnessName = calculateBrightnessName(clamped)
-        Quickshell.execDetached(["qs-brightness", "--no-osd", "--monitor", root.activeMonitorName, clamped + "%"])
+        Quickshell.execDetached(["qdeck-brightness", "--no-osd", "--monitor", root.activeMonitorName, clamped + "%"])
     }
 
     function setTextSize(size) {
@@ -171,7 +171,7 @@ QtObject {
         if (isNaN(val)) return
         root.textSize = val
         Theme.baseTextSize = val
-        Quickshell.execDetached(["qs-display-text-size", String(val)])
+        Quickshell.execDetached(["qdeck-display-text-size", String(val)])
         refreshDelayTimer.restart()
     }
 
@@ -193,7 +193,7 @@ QtObject {
                 Quickshell.execDetached(["hyprctl", "keyword", "monitor", monName + "," + w + "x" + h + "@" + hz + "," + posX + "x" + posY + "," + scaleVal])
             }
         }
-        Quickshell.execDetached(["qs-monitor-scaling", String(scaleVal)])
+        Quickshell.execDetached(["qdeck-monitor-scaling", String(scaleVal)])
         refreshDelayTimer.restart()
     }
 
@@ -265,7 +265,7 @@ QtObject {
 
     property Process stateProc: Process {
         id: stateProc
-        command: ["qs-monitor-state"]
+        command: ["qdeck-monitor-state"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {
@@ -294,7 +294,7 @@ QtObject {
 
     property Process textSizeProc: Process {
         id: textSizeProc
-        command: ["qs-display-text-size"]
+        command: ["qdeck-display-text-size"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {
@@ -314,7 +314,7 @@ QtObject {
     // Real-time instant hardware backlight event listener via kernel udev
     property Process backlightWatchProc: Process {
         id: backlightWatchProc
-        command: ["qs-backlight-monitor"]
+        command: ["qdeck-backlight-monitor"]
         running: true
         stdout: SplitParser {
             onRead: function(line) {

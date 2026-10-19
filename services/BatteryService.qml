@@ -24,7 +24,7 @@ QtObject {
 
     property Process getBatteryProc: Process {
         id: getBatteryProc
-        command: ["qs-battery-info"]
+        command: ["qdeck-battery-info"]
         stdout: StdioCollector {
             waitForEnd: true
             onStreamFinished: {

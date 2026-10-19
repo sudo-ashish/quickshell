@@ -39,7 +39,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
 
     HyprlandFocusGrab {
-        active: root.open
+        active: false
         windows: [root]
         onCleared: {
             root.lastClearedTime = Date.now()
@@ -56,22 +56,57 @@ PanelWindow {
         }
     }
 
-    // Calculate card position relative to anchorItem
+    // Dismiss when pressing Escape key
+    Shortcut {
+        enabled: root.open
+        sequence: "Escape"
+        onActivated: {
+            root.lastClearedTime = Date.now()
+            root.open = false
+        }
+    }
+
+    // Calculate card position relative to anchorItem across different bar modes
     readonly property real cardX: {
         var _ = root.open // reactively recompute whenever popup opens
         if (!root.anchorItem) return Appearance.popupMargin
+
+        var win = (root.anchorItem.QsWindow && root.anchorItem.QsWindow.window) ? root.anchorItem.QsWindow.window : null
+        var screenW = (win && win.screen) ? win.screen.width : root.width
+
+        // Compute bar window X position on screen
+        var barScreenX = 0
+        if (win) {
+            if (win.anchors && win.anchors.left) {
+                barScreenX = (win.margins && win.margins.left) ? win.margins.left : 0
+            } else {
+                // Compositor horizontally centers unanchored windows (compact & wide modes)
+                barScreenX = Math.round((screenW - win.width) / 2)
+            }
+        }
+
         var pt = root.anchorItem.mapToItem(null, 0, 0)
-        var desiredX = pt.x + (root.anchorItem.width / 2) - (root.contentWidth / 2)
+        var itemCenterScreenX = barScreenX + pt.x + (root.anchorItem.width / 2)
+        var desiredX = itemCenterScreenX - (root.contentWidth / 2)
+
         var margin = Appearance.popupMargin
-        var maxRight = root.width - root.contentWidth - margin
+        var maxRight = screenW - root.contentWidth - margin
         return Math.max(margin, Math.min(desiredX, maxRight))
     }
 
     readonly property real cardY: {
         var _ = root.open // reactively recompute whenever popup opens
         if (!root.anchorItem) return Appearance.barHeight + 6
+
+        var win = (root.anchorItem.QsWindow && root.anchorItem.QsWindow.window) ? root.anchorItem.QsWindow.window : null
+        var barScreenY = 0
+        if (win && win.margins && win.margins.top) {
+            barScreenY = win.margins.top
+        }
+
         var pt = root.anchorItem.mapToItem(null, 0, 0)
-        return Math.max(Appearance.barHeight + 6, pt.y + root.anchorItem.height + 6)
+        var itemBottomScreenY = barScreenY + pt.y + root.anchorItem.height
+        return Math.max(Appearance.barHeight + 6, itemBottomScreenY + 6)
     }
 
     // Outer Card Container

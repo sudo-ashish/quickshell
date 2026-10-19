@@ -24,7 +24,7 @@ PanelWindow {
     exclusionMode: ExclusionMode.Ignore
 
     HyprlandFocusGrab {
-        active: root.isOpen
+        active: false
         windows: [root]
         onCleared: {
             if (root.powerService) {

@@ -87,11 +87,11 @@ function stringHint(hints, name) {
 }
 
 function glyphFromHints(hints) {
-  return stringHint(hints, "qs-glyph")
+  return stringHint(hints, "qdeck-glyph") || stringHint(hints, "qs-glyph")
 }
 
 function execArgvFromHints(hints) {
-  return stringHint(hints, "qs-exec-argv")
+  return stringHint(hints, "qdeck-exec-argv") || stringHint(hints, "qs-exec-argv")
 }
 
 function parseExecArgv(value) {
