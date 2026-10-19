@@ -22,7 +22,7 @@ Row {
 
             width: 24
             height: 24
-            radius: Theme.radiusSmall
+            radius: Appearance.radiusSmall
 
             color: {
                 if (isActive) return Theme.selection
@@ -31,16 +31,16 @@ Row {
             }
 
             Behavior on color {
-                ColorAnimation { duration: Theme.animDuration }
+                ColorAnimation { duration: Appearance.animDurationNormal }
             }
 
             Text {
                 anchors.centerIn: parent
                 // If active, show filled block symbol ■ (like running machine!) else number
                 text: wsBtn.isActive ? "" : String(wsBtn.modelData)
-                font.family: Theme.fontFamily
-                font.pixelSize: wsBtn.isActive ? Theme.fontSizeMedium : Theme.fontSizeRegular
-                font.bold: wsBtn.isActive
+                font.family: wsBtn.isActive ? Icons.effectiveFont("") : Fonts.uiFont
+                font.pixelSize: wsBtn.isActive ? Fonts.sizeMedium : Fonts.sizeRegular
+                font.weight: wsBtn.isActive ? Fonts.weightBold : Fonts.weightNormal
                 color: {
                     if (wsBtn.isActive) return Theme.accent
                     if (wsBtn.isOccupied) return Theme.foreground

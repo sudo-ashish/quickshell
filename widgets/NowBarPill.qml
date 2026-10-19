@@ -15,7 +15,7 @@ Item {
     readonly property bool hasMedia: controller ? controller.hasMedia : false
     readonly property string trackTitle: root.controller ? (root.controller.title || root.controller.artist || "Music") : ""
 
-    implicitHeight: 28
+    implicitHeight: Appearance.mediaPillHeight
     implicitWidth: hasMedia ? Math.min(220, Math.max(130, titleMeasure.implicitWidth + 82)) : 0
     height: implicitHeight
     width: implicitWidth
@@ -41,9 +41,9 @@ Item {
     Text {
         id: titleMeasure
         text: root.trackTitle
-        font.family: Theme.fontFamily
-        font.pixelSize: 11
-        font.bold: true
+        font.family: Fonts.uiFont
+        font.pixelSize: Fonts.scale(11)
+        font.weight: Fonts.weightBold
         visible: false
     }
 
@@ -51,11 +51,11 @@ Item {
     Rectangle {
         id: pillBg
         anchors.fill: parent
-        radius: height / 2
+        radius: Appearance.mediaPillRadius
 
         color: pillMouse.containsMouse ? Theme.lighter_background : Theme.dark_background
-        border.color: pillMouse.containsMouse ? Theme.accent : Theme.selection
-        border.width: 1
+        border.color: "transparent"
+        border.width: 0
 
         // Disappear smoothly when popup opens, bounce back into view when closed
         opacity: mediaPopup.open ? 0.0 : 1.0
@@ -75,7 +75,6 @@ Item {
         }
 
         Behavior on color { ColorAnimation { duration: 150 } }
-        Behavior on border.color { ColorAnimation { duration: 150 } }
 
         // ── 1. Mini Rounded Album Art on Left Side ────────────────────────
         Item {
@@ -89,14 +88,14 @@ Item {
             Rectangle {
                 id: miniArtBg
                 anchors.fill: parent
-                radius: 5
+                radius: Appearance.radiusSmall
                 color: Theme.dark_background
 
                 Text {
                     anchors.centerIn: parent
                     text: "󰝚"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 10
+                    font.family: Icons.effectiveFont("󰝚")
+                    font.pixelSize: Fonts.scale(10)
                     color: Theme.muted
                     visible: !miniArt.visible
                 }
@@ -104,7 +103,7 @@ Item {
                 Rectangle {
                     id: miniArtMask
                     anchors.fill: parent
-                    radius: 5
+                    radius: Appearance.radiusSmall
                     color: "black"
                     layer.enabled: true
                     visible: false
@@ -132,10 +131,10 @@ Item {
 
             Rectangle {
                 anchors.fill: parent
-                radius: 5
+                radius: Appearance.radiusSmall
                 color: "transparent"
-                border.color: Theme.selection
-                border.width: 1
+                border.color: "transparent"
+                border.width: 0
                 z: 2
             }
         }
@@ -281,9 +280,9 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             text: root.trackTitle
-            font.family: Theme.fontFamily
-            font.pixelSize: 11
-            font.bold: true
+            font.family: Fonts.uiFont
+            font.pixelSize: Fonts.scale(11)
+            font.weight: Fonts.weightBold
             color: Theme.foreground
             elide: Text.ElideRight
             maximumLineCount: 1

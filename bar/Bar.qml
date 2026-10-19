@@ -25,7 +25,7 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: Theme.barHeight
+    implicitHeight: Appearance.barHeight
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
@@ -36,29 +36,23 @@ PanelWindow {
     // Main Bar Frosted Surface
     Rectangle {
         anchors.fill: parent
+        radius: Appearance.barRadius
         color: Theme.withAlpha(Theme.background, Theme.baseOpacity)
-    }
-
-    // Bottom hairline separator
-    Rectangle {
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: 1
-        color: Theme.selection
+        border.color: Appearance.barRadius > 0 ? Theme.selection : "transparent"
+        border.width: Appearance.barRadius > 0 ? Appearance.borderWidthThin : Appearance.borderWidthNone
     }
 
     // Main Bar Content Container
     Item {
         anchors.fill: parent
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
+        anchors.leftMargin: Appearance.barMarginHorizontal
+        anchors.rightMargin: Appearance.barMarginHorizontal
 
         // Left Section: Workspaces & One UI 7 Now Bar
         Row {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 8
+            spacing: Appearance.barSectionSpacing
 
             WorkspacesWidget {
                 service: root.workspacesService
@@ -86,7 +80,7 @@ PanelWindow {
         Row {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 4
+            spacing: Appearance.barSpacing
 
             BluetoothWidget {
                 id: bluetoothWidget

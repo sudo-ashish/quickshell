@@ -72,8 +72,8 @@ Item {
         signal rightClicked()
 
         implicitWidth: parent ? parent.width : 290
-        implicitHeight: 22
-        height: 22
+        implicitHeight: Appearance.audioSliderHeight
+        height: Appearance.audioSliderHeight
 
         readonly property real range: Math.max(0.001, to - from)
         readonly property real progress: Math.max(0.0, Math.min(1.0, (liveValue - from) / range))
@@ -83,8 +83,8 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            height: 4
-            radius: 2
+            height: Appearance.audioSliderTrackHeight
+            radius: Appearance.audioSliderTrackRadius
             color: Theme.selection
 
             Rectangle {
@@ -92,7 +92,7 @@ Item {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 width: parent.width * sliderRoot.progress
-                radius: 2
+                radius: Appearance.audioSliderTrackRadius
                 color: sliderRoot.muted ? Theme.muted : Theme.accent
 
                 Behavior on width {
@@ -186,7 +186,7 @@ Item {
 
                     Text {
                         text: root.service.muted ? "󰝟" : "󰕾"
-                        font.family: Theme.fontFamily
+                        font.family: Icons.effectiveFont(text)
                         font.pixelSize: 24
                         color: root.service.muted ? Theme.muted : Theme.foreground
                         anchors.verticalCenter: parent.verticalCenter
@@ -198,15 +198,15 @@ Item {
 
                         Text {
                             text: "Audio"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 15
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeMedium
                             font.bold: true
                             color: Theme.foreground
                         }
 
                         Text {
                             text: root.service.volumeName.toUpperCase()
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 10
                             font.bold: true
                             font.letterSpacing: 1.1
@@ -244,7 +244,7 @@ Item {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "OUTPUT"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -254,7 +254,7 @@ Item {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.service.muted ? "MUTED" : (Math.round(outSlider.liveValue) + "%")
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.monoFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.foreground
@@ -284,7 +284,7 @@ Item {
                             required property var modelData
                             width: parent.width
                             height: 34
-                            radius: 4
+                            radius: Appearance.radiusSmall
                             color: modelData.isDefault ? Theme.selection : (sinkMouse.containsMouse ? Theme.lighter_background : "transparent")
                             border.color: modelData.isDefault ? Theme.accent : "transparent"
                             border.width: 1
@@ -299,7 +299,7 @@ Item {
 
                                 Text {
                                     text: sinkBox.modelData.glyph
-                                    font.family: Theme.fontFamily
+                                    font.family: Icons.effectiveFont(text)
                                     font.pixelSize: 15
                                     color: Theme.foreground
                                     anchors.verticalCenter: parent.verticalCenter
@@ -307,9 +307,9 @@ Item {
 
                                 Text {
                                     text: sinkBox.modelData.displayName
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.uiFont
                                     font.pixelSize: 12
-                                    font.bold: sinkBox.modelData.isDefault
+                                    font.bold: sinkBox.modelData.isDefault 
                                     color: Theme.foreground
                                     elide: Text.ElideRight
                                     width: parent.width - 32
@@ -351,7 +351,7 @@ Item {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "INPUT"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -361,7 +361,7 @@ Item {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.service.inputMuted ? "MUTED" : (Math.round(inSlider.liveValue) + "%")
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.monoFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.foreground
@@ -391,7 +391,7 @@ Item {
                             required property var modelData
                             width: parent.width
                             height: 34
-                            radius: 4
+                            radius: Appearance.radiusSmall
                             color: modelData.isDefault ? Theme.selection : (srcMouse.containsMouse ? Theme.lighter_background : "transparent")
                             border.color: modelData.isDefault ? Theme.accent : "transparent"
                             border.width: 1
@@ -406,7 +406,7 @@ Item {
 
                                 Text {
                                     text: srcBox.modelData.glyph
-                                    font.family: Theme.fontFamily
+                                    font.family: Icons.effectiveFont(text)
                                     font.pixelSize: 15
                                     color: Theme.foreground
                                     anchors.verticalCenter: parent.verticalCenter
@@ -414,9 +414,9 @@ Item {
 
                                 Text {
                                     text: srcBox.modelData.displayName
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.uiFont
                                     font.pixelSize: 12
-                                    font.bold: srcBox.modelData.isDefault
+                                    font.bold: srcBox.modelData.isDefault 
                                     color: Theme.foreground
                                     elide: Text.ElideRight
                                     width: parent.width - 32
@@ -452,7 +452,7 @@ Item {
 
                 Text {
                     text: "SOURCES"
-                    font.family: Theme.fontFamily
+                    font.family: Fonts.uiFont
                     font.pixelSize: 11
                     font.bold: true
                     color: Theme.muted
@@ -471,7 +471,7 @@ Item {
 
                         width: parent.width
                         height: 58
-                        radius: 4
+                        radius: Appearance.radiusSmall
                         color: Theme.dark_background
                         border.color: Theme.selection
                         border.width: 1
@@ -493,7 +493,7 @@ Item {
 
                                     Text {
                                         text: streamCard.streamMuted ? "󰝟" : ""
-                                        font.family: Theme.fontFamily
+                                        font.family: Icons.effectiveFont("󰝟")
                                         font.pixelSize: 14
                                         color: streamCard.streamMuted ? Theme.red : Theme.foreground
                                         anchors.verticalCenter: parent.verticalCenter
@@ -507,7 +507,7 @@ Item {
 
                                     Text {
                                         text: streamCard.streamName
-                                        font.family: Theme.fontFamily
+                                        font.family: Fonts.uiFont
                                         font.pixelSize: 12
                                         font.bold: true
                                         color: Theme.foreground
@@ -518,7 +518,7 @@ Item {
 
                                 Text {
                                     text: streamCard.streamMuted ? "MUTED" : (Math.round(streamSlider.liveValue) + "%")
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.monoFont
                                     font.pixelSize: 11
                                     font.bold: true
                                     color: Theme.foreground

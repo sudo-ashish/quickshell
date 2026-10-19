@@ -66,7 +66,7 @@ Item {
 
                     Text {
                         text: "󰍹"
-                        font.family: Theme.fontFamily
+                        font.family: Icons.effectiveFont("󰍹")
                         font.pixelSize: 26
                         color: Theme.accent
                         anchors.verticalCenter: parent.verticalCenter
@@ -78,15 +78,15 @@ Item {
 
                         Text {
                             text: "Display"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeLarge
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeLarge
                             font.bold: true
                             color: Theme.foreground
                         }
 
                         Text {
                             text: root.service.brightnessName || "Internal Display"
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 11
                             color: Theme.muted
                         }
@@ -114,7 +114,7 @@ Item {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "BRIGHTNESS"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -124,7 +124,7 @@ Item {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.service.brightness + "%"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.monoFont
                         font.pixelSize: 12
                         font.bold: true
                         color: Theme.foreground
@@ -143,7 +143,7 @@ Item {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         height: 4
-                        radius: 2
+                        radius: Appearance.radiusXs
                         color: Theme.selection
 
                         Rectangle {
@@ -151,7 +151,7 @@ Item {
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
                             width: Math.max(0, Math.min(parent.width, parent.width * (root.service.brightness / 100.0)))
-                            radius: 2
+                            radius: Appearance.radiusXs
                             color: Theme.accent
 
                             Behavior on width {
@@ -219,7 +219,7 @@ Item {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "TEXT SIZE"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -229,7 +229,7 @@ Item {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.service.textSize + "px"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.monoFont
                         font.pixelSize: 12
                         font.bold: true
                         color: Theme.foreground
@@ -271,7 +271,7 @@ Item {
                                 required property int index
                                 width: (textSliderItem.width - (4 * (textSliderItem.stops.length - 2))) / (textSliderItem.stops.length - 1)
                                 height: 4
-                                radius: 2
+                                radius: Appearance.radiusXs
                                 color: (index < textSliderItem.activeIndex) ? Theme.accent : Theme.selection
                             }
                         }
@@ -344,7 +344,7 @@ Item {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "SCALE"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -355,7 +355,7 @@ Item {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.service.focusedMonitor
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 10
                         color: Theme.dark_foreground
                     }
@@ -385,7 +385,7 @@ Item {
 
                             width: scaleRow.pillWidth
                             height: 28
-                            radius: Theme.radiusSmall
+                            radius: Appearance.radiusSmall
                             color: isActive ? Theme.selection : (pillMouse.containsMouse ? Theme.lighter_background : Theme.dark_background)
                             border.color: isActive ? Theme.accent : Theme.selection
                             border.width: 1
@@ -393,9 +393,9 @@ Item {
                             Text {
                                 anchors.centerIn: parent
                                 text: scalePill.modelData + "x"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 11
-                                font.bold: scalePill.isActive
+                                font.bold: scalePill.isActive 
                                 color: scalePill.isActive ? Theme.accent : Theme.foreground
                             }
 
@@ -431,7 +431,7 @@ Item {
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         text: "REFRESH RATE"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -445,14 +445,14 @@ Item {
                         Text {
                             visible: root.service.displays.length > 1
                             text: root.service.activeMonitorName
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 10
                             color: Theme.dark_foreground
                         }
 
                         Text {
                             text: root.service.currentRefreshRate + "Hz"
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.monoFont
                             font.pixelSize: 12
                             font.bold: true
                             color: Theme.foreground
@@ -473,7 +473,7 @@ Item {
                         id: hz60Pill
                         width: hzRow.canSwitch ? (hzRow.width - hzRow.spacing) / 2 : hzRow.width
                         height: 28
-                        radius: Theme.radiusSmall
+                        radius: Appearance.radiusSmall
 
                         readonly property bool isActive: Math.abs(root.service.currentRefreshRate - 60) <= 2
 
@@ -484,9 +484,9 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: "60 Hz" + (hzRow.canSwitch ? "" : " (Max)")
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 11
-                            font.bold: hz60Pill.isActive
+                            font.bold: hz60Pill.isActive 
                             color: hz60Pill.isActive ? Theme.accent : Theme.foreground
                         }
 
@@ -505,7 +505,7 @@ Item {
                         visible: hzRow.canSwitch
                         width: (hzRow.width - hzRow.spacing) / 2
                         height: 28
-                        radius: Theme.radiusSmall
+                        radius: Appearance.radiusSmall
 
                         readonly property bool isActive: Math.abs(root.service.currentRefreshRate - hzRow.maxHz) <= 2
 
@@ -516,9 +516,9 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: hzRow.maxHz + " Hz (Max)"
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 11
-                            font.bold: hzMaxPill.isActive
+                            font.bold: hzMaxPill.isActive 
                             color: hzMaxPill.isActive ? Theme.accent : Theme.foreground
                         }
 
@@ -547,7 +547,7 @@ Item {
 
                 Text {
                     text: "DISPLAYS"
-                    font.family: Theme.fontFamily
+                    font.family: Fonts.uiFont
                     font.pixelSize: 11
                     font.bold: true
                     color: Theme.muted
@@ -560,7 +560,7 @@ Item {
                         required property var modelData
                         width: parent.width
                         height: 32
-                        radius: Theme.radiusSmall
+                        radius: Appearance.radiusSmall
                         color: modelData.focused ? Theme.selection : (dispMouse.containsMouse ? Theme.lighter_background : "transparent")
                         border.width: modelData.focused ? 1 : 0
                         border.color: modelData.focused ? Theme.accent : "transparent"
@@ -573,7 +573,7 @@ Item {
 
                             Text {
                                 text: "󰍹"
-                                font.family: Theme.fontFamily
+                                font.family: Icons.effectiveFont("󰍹")
                                 font.pixelSize: 14
                                 color: modelData.focused ? Theme.accent : Theme.muted
                                 anchors.verticalCenter: parent.verticalCenter
@@ -581,9 +581,9 @@ Item {
 
                             Text {
                                 text: modelData.name + (modelData.focused ? " · active" : "") + " (" + modelData.refreshRate + "Hz)"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 11
-                                font.bold: modelData.focused
+                                font.bold: modelData.focused 
                                 color: modelData.focused ? Theme.foreground : Theme.muted
                                 anchors.verticalCenter: parent.verticalCenter
                             }

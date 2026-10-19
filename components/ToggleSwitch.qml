@@ -8,21 +8,21 @@ Item {
     property bool interactive: true
     signal toggled()
 
-    implicitWidth: 40
-    implicitHeight: 22
+    implicitWidth: Appearance.toggleTrackWidth
+    implicitHeight: Appearance.toggleTrackHeight
     width: implicitWidth
     height: implicitHeight
 
     // Rectangular Toggle Switch matching Speaker switch
     Rectangle {
         id: track
-        width: 40
-        height: 22
-        radius: 2
+        width: Appearance.toggleTrackWidth
+        height: Appearance.toggleTrackHeight
+        radius: Appearance.toggleTrackRadius
         anchors.centerIn: parent
         color: root.checked ? Theme.selection : Theme.dark_background
         border.color: Theme.selection
-        border.width: 1
+        border.width: Appearance.toggleBorderWidth
 
         Behavior on color {
             ColorAnimation { duration: 120 }
@@ -30,9 +30,9 @@ Item {
 
         Rectangle {
             id: thumb
-            width: 16
-            height: 16
-            radius: 2
+            width: Appearance.toggleThumbSize
+            height: Appearance.toggleThumbSize
+            radius: Appearance.toggleThumbRadius
             anchors.verticalCenter: parent.verticalCenter
             x: root.checked ? (track.width - width - 3) : 3
             color: root.checked ? Theme.accent : Theme.muted
@@ -48,6 +48,7 @@ Item {
     }
 
     MouseArea {
+        id: mouseArea
         anchors.fill: parent
         enabled: root.interactive
         hoverEnabled: true

@@ -8,6 +8,7 @@ QtObject {
 
     // Central single source of truth path for colors configuration
     readonly property string colorsConfigPath: Quickshell.env("HOME") + "/.config/themes/current/colors.toml"
+    readonly property string localColorsPath: (Quickshell.env("QS_CONFIG_PATH") || (Quickshell.env("HOME") + "/.config/quickshell")) + "/theme/colors.toml"
     readonly property string blurStatePath: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/quickshell/blur-state"
 
     // Raw parsed colors dictionary
@@ -50,10 +51,10 @@ QtObject {
     // ─────────────────────────────────────────────────────────────────────────
     property bool blurEnabled: true
 
-    readonly property real baseOpacity: root.blurEnabled ? 0.82 : 1.0
-    readonly property real elevatedOpacity: root.blurEnabled ? 0.88 : 1.0
-    readonly property real layerOpacity: 0.28
-    readonly property real scrimOpacity: 0.35
+    readonly property real baseOpacity: root.blurEnabled ? Appearance.baseOpacity : 1.0
+    readonly property real elevatedOpacity: root.blurEnabled ? Appearance.elevatedOpacity : 1.0
+    readonly property real layerOpacity: Appearance.layerOpacity
+    readonly property real scrimOpacity: Appearance.scrimOpacity
 
     function withAlpha(colorVal, alphaVal) {
         return Qt.rgba(colorVal.r, colorVal.g, colorVal.b, alphaVal)
@@ -97,22 +98,29 @@ QtObject {
         }
     }
 
-    // Typography & Metrics
-    property int baseTextSize: 12
+    // ─────────────────────────────────────────────────────────────────────────
+    // Typography & Metrics Bridges (Centralized in Fonts & Appearance)
+    // ─────────────────────────────────────────────────────────────────────────
+    property int baseTextSize: Fonts.baseTextSize
+    onBaseTextSizeChanged: {
+        if (Fonts.baseTextSize !== baseTextSize) {
+            Fonts.baseTextSize = baseTextSize
+        }
+    }
 
-    readonly property string fontFamily: "JetBrainsMono Nerd Font"
-    readonly property int fontSizeSmall: Math.max(8, Math.round(baseTextSize * 0.917))
-    readonly property int fontSizeRegular: Math.max(9, Math.round(baseTextSize * 1.083))
-    readonly property int fontSizeMedium: Math.max(10, Math.round(baseTextSize * 1.167))
-    readonly property int fontSizeLarge: Math.max(12, Math.round(baseTextSize * 1.333))
-    readonly property int fontSizeTitle: Math.max(16, Math.round(baseTextSize * 1.833))
+    readonly property string fontFamily: Fonts.uiFont
+    readonly property int fontSizeSmall: Fonts.sizeSmall
+    readonly property int fontSizeRegular: Fonts.sizeRegular
+    readonly property int fontSizeMedium: Fonts.sizeMedium
+    readonly property int fontSizeLarge: Fonts.sizeLarge
+    readonly property int fontSizeTitle: Fonts.sizeTitle
 
-    readonly property int barHeight: Math.max(26, Math.round(baseTextSize * 2.5))
-    readonly property int radiusSmall: 4
-    readonly property int radiusMedium: 8
-    readonly property int radiusLarge: 12
+    readonly property int barHeight: Appearance.barHeight
+    readonly property int radiusSmall: Appearance.radiusSmall
+    readonly property int radiusMedium: Appearance.radiusMedium
+    readonly property int radiusLarge: Appearance.radiusLarge
 
-    readonly property int animDuration: 150
+    readonly property int animDuration: Appearance.animDurationNormal
 
     property FileView blurStateFile: FileView {
         path: root.blurStatePath
@@ -124,21 +132,6 @@ QtObject {
                 if (root.blurEnabled) root.blurEnabled = false
             } else if (raw === "on" || raw === "true" || raw === "1") {
                 if (!root.blurEnabled) root.blurEnabled = true
-            }
-        }
-    }
-
-    property FileView textSizeFile: FileView {
-        path: Quickshell.env("HOME") + "/.config/quickshell/text-size"
-        watchChanges: true
-        printErrors: false
-        onLoaded: {
-            var raw = String(text() || "").trim()
-            var commentIdx = raw.indexOf("#")
-            if (commentIdx !== -1) raw = raw.slice(0, commentIdx).trim()
-            var s = parseInt(raw, 10)
-            if (!isNaN(s) && s >= 8 && s <= 32) {
-                root.baseTextSize = s
             }
         }
     }
@@ -186,14 +179,28 @@ QtObject {
         watchChanges: true
         printErrors: false
         onLoaded: {
-            root.parseThemeFile(text())
+            if (text()) root.parseThemeFile(text())
+        }
+    }
+
+    property FileView fallbackColorsFile: FileView {
+        path: root.localColorsPath
+        watchChanges: true
+        printErrors: false
+        onLoaded: {
+            if (!colorsFile.text() && text()) {
+                root.parseThemeFile(text())
+            }
         }
     }
 
     Component.onCompleted: {
         if (colorsFile.text()) {
             root.parseThemeFile(colorsFile.text())
+        } else if (fallbackColorsFile.text()) {
+            root.parseThemeFile(fallbackColorsFile.text())
         }
+
         var rawBlur = String(blurStateFile.text() || "").trim().toLowerCase()
         if (rawBlur === "off" || rawBlur === "false" || rawBlur === "0") {
             root.blurEnabled = false

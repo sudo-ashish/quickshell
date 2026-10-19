@@ -15,8 +15,8 @@ PanelWindow {
     property AudioService audioService: null
 
     property bool open: false
-    property int contentWidth: 370
-    property int contentHeight: 148
+    property int contentWidth: Appearance.mediaIslandWidth
+    property int contentHeight: Appearance.mediaIslandHeight
     property double lastClearedTime: 0
 
     // High-resolution App icon mapping for whichever app is currently playing audio
@@ -215,10 +215,10 @@ PanelWindow {
         y: Math.round(root.cardY)
         width: root.contentWidth
         height: root.contentHeight
-        radius: 22
+        radius: Appearance.mediaIslandRadius
         color: Theme.withAlpha(Theme.dark_background, Theme.baseOpacity)
-        border.color: Theme.selection
-        border.width: 1
+        border.color: "transparent"
+        border.width: 0
 
         MouseArea {
             anchors.fill: parent
@@ -244,11 +244,11 @@ PanelWindow {
                 height: 82
                 anchors.top: parent.top
 
-                // Mask defining smooth rounded corners (radius 18)
+                // Mask defining sharp rounded corners (Appearance.radiusMedium: 8px)
                 Rectangle {
                     id: albumCoverMask
                     anchors.fill: parent
-                    radius: 18
+                    radius: Appearance.radiusMedium
                     color: "black"
                     layer.enabled: true
                     visible: false
@@ -257,17 +257,17 @@ PanelWindow {
                 // Underlying fallback when no artwork is available
                 Rectangle {
                     anchors.fill: parent
-                    radius: 18
+                    radius: Appearance.radiusMedium
                     color: Theme.dark_background
-                    border.color: Theme.selection
-                    border.width: 1
+                    border.color: "transparent"
+                    border.width: 0
                     visible: !coverImg.visible
 
                     Text {
                         anchors.centerIn: parent
                         text: "󰝚"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 32
+                        font.family: Icons.effectiveFont("󰝚")
+                        font.pixelSize: Fonts.scale(32)
                         color: Theme.muted
                     }
                 }
@@ -288,13 +288,13 @@ PanelWindow {
                     }
                 }
 
-                // Razor-crisp border outline over rounded album art
+                // Razor-crisp outline over rounded album art (borderless)
                 Rectangle {
                     anchors.fill: parent
-                    radius: 18
+                    radius: Appearance.radiusMedium
                     color: "transparent"
-                    border.color: Theme.selection
-                    border.width: 1
+                    border.color: "transparent"
+                    border.width: 0
                     z: 10
                 }
             }
@@ -319,9 +319,9 @@ PanelWindow {
                         Text {
                             width: parent.width
                             text: root.controller && root.controller.title ? root.controller.title : "No Media"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 15
-                            font.bold: true
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeMedium
+                            font.weight: Fonts.weightBold
                             color: Theme.foreground
                             elide: Text.ElideRight
                             maximumLineCount: 1
@@ -330,8 +330,8 @@ PanelWindow {
                         Text {
                             width: parent.width
                             text: root.controller && root.controller.artist ? root.controller.artist : "Unknown Artist"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 12
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             color: Theme.muted
                             elide: Text.ElideRight
                             maximumLineCount: 1
@@ -349,11 +349,11 @@ PanelWindow {
                         Rectangle {
                             id: appIconBg
                             anchors.fill: parent
-                            radius: 9
+                            radius: 6
                             clip: true
                             color: root.appBadgeBg
-                            border.color: Theme.selection
-                            border.width: 1
+                            border.color: "transparent"
+                            border.width: 0
 
                             // High-res desktop app icon (anti-aliased, mipmapped)
                             Image {
@@ -374,8 +374,8 @@ PanelWindow {
                             Text {
                                 anchors.centerIn: parent
                                 text: root.appGlyph
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 18
+                                font.family: Icons.effectiveFont(text)
+                                font.pixelSize: Fonts.scale(18)
                                 color: root.appGlyphColor
                                 visible: !appIconImg.visible
                             }
@@ -465,16 +465,16 @@ PanelWindow {
                         Text {
                             anchors.left: parent.left
                             text: root.controller ? root.controller.formatTime(root.isDraggingSeek ? (root.dragProgress * root.controller.length) : root.controller.position) : "00:00"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.family: Fonts.monoFont
+                            font.pixelSize: Fonts.scale(10)
                             color: Theme.muted
                         }
 
                         Text {
                             anchors.right: parent.right
                             text: root.controller ? root.controller.formatTime(root.controller.length) : "00:00"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.family: Fonts.monoFont
+                            font.pixelSize: Fonts.scale(10)
                             color: Theme.muted
                         }
                     }
@@ -498,8 +498,8 @@ PanelWindow {
                             Text {
                                 anchors.centerIn: parent
                                 text: "󰒮"
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 32
+                                font.family: Icons.effectiveFont("󰒮")
+                                font.pixelSize: Fonts.scale(32)
                                 color: root.controller && root.controller.canGoPrevious ? (prevMouse.containsMouse ? Theme.bright_foreground : Theme.foreground) : Theme.muted
                                 scale: prevMouse.pressed ? 0.90 : 1.0
                                 Behavior on scale { NumberAnimation { duration: 100 } }
@@ -524,8 +524,8 @@ PanelWindow {
                             Text {
                                 anchors.centerIn: parent
                                 text: root.controller && root.controller.isPlaying ? "󰏤" : "󰐊"
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 34
+                                font.family: Icons.effectiveFont(text)
+                                font.pixelSize: Fonts.scale(34)
                                 color: playMouse.containsMouse ? Theme.bright_foreground : Theme.foreground
                                 scale: playMouse.pressed ? 0.88 : 1.0
                                 Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutBack } }
@@ -549,8 +549,8 @@ PanelWindow {
                             Text {
                                 anchors.centerIn: parent
                                 text: "󰒭"
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 32
+                                font.family: Icons.effectiveFont("󰒭")
+                                font.pixelSize: Fonts.scale(32)
                                 color: root.controller && root.controller.canGoNext ? (nextMouse.containsMouse ? Theme.bright_foreground : Theme.foreground) : Theme.muted
                                 scale: nextMouse.pressed ? 0.90 : 1.0
                                 Behavior on scale { NumberAnimation { duration: 100 } }

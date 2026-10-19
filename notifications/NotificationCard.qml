@@ -52,12 +52,12 @@ Rectangle {
         }
     }
 
-    implicitWidth: 380
+    implicitWidth: Appearance.notificationWidth
     implicitHeight: mainColumn.implicitHeight + 20
-    radius: Theme.radiusLarge
+    radius: Appearance.notificationRadius
     color: Theme.withAlpha(Theme.dark_background, Theme.baseOpacity)
     border.color: Theme.selection
-    border.width: 1
+    border.width: Appearance.borderWidthThin
     clip: true
 
     HoverHandler { id: hoverTracker }
@@ -68,9 +68,9 @@ Rectangle {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: 4
+        width: Appearance.notificationUrgencyStripWidth
         color: root.accentColor
-        radius: 2
+        radius: Appearance.radiusXs
     }
 
     // Main clickable surface
@@ -92,15 +92,15 @@ Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.topMargin: 12
-        anchors.leftMargin: 16
-        anchors.rightMargin: 14
-        spacing: 8
+        anchors.topMargin: Appearance.spacingLarge
+        anchors.leftMargin: Appearance.spacingXl
+        anchors.rightMargin: Appearance.spacingLarge + 2
+        spacing: Appearance.spacingMedium
 
         // Top Row: App Icon/Glyph, App Name, Close Button
         RowLayout {
             Layout.fillWidth: true
-            spacing: 8
+            spacing: Appearance.spacingMedium
 
             // Icon / Glyph Slot
             Item {
@@ -123,9 +123,9 @@ Rectangle {
                 Text {
                     anchors.centerIn: parent
                     visible: !iconImg.visible
-                    text: root.glyph.length > 0 ? root.glyph : "󰂚"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 15
+                    text: root.glyph.length > 0 ? root.glyph : Icons.bell
+                    font.family: Icons.effectiveFont(text)
+                    font.pixelSize: Fonts.sizeMedium + 1
                     color: root.accentColor
                 }
             }
@@ -134,9 +134,9 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 text: (root.app.length > 0 ? root.app : "System").toUpperCase()
-                font.family: Theme.fontFamily
-                font.pixelSize: 10
-                font.bold: true
+                font.family: Fonts.uiFont
+                font.pixelSize: Fonts.sizeXs + 1
+                font.weight: Fonts.weightBold
                 color: Theme.muted
                 elide: Text.ElideRight
             }
@@ -150,9 +150,9 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "󰅖"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 12
+                    text: Icons.close
+                    font.family: Icons.effectiveFont(text)
+                    font.pixelSize: Fonts.sizeSmall + 1
                     color: closeBtnArea.containsMouse ? Theme.red : Theme.muted
                 }
 
@@ -171,9 +171,9 @@ Rectangle {
             Layout.fillWidth: true
             visible: root.summary.length > 0
             text: root.summary
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeRegular + 1
-            font.bold: true
+            font.family: Fonts.uiFont
+            font.pixelSize: Fonts.sizeRegular + 1
+            font.weight: Fonts.weightBold
             color: Theme.foreground
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
@@ -186,8 +186,8 @@ Rectangle {
             visible: root.sanitizedBody.length > 0
             text: root.styledBody
             textFormat: Text.StyledText
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeRegular
+            font.family: Fonts.uiFont
+            font.pixelSize: Fonts.sizeRegular
             color: Theme.foreground
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
@@ -197,9 +197,9 @@ Rectangle {
         // Actions Row (if any actions are defined)
         RowLayout {
             Layout.fillWidth: true
-            Layout.topMargin: 4
+            Layout.topMargin: Appearance.spacingSmall
             visible: root.actionList.length > 0
-            spacing: 8
+            spacing: Appearance.spacingMedium
 
             Repeater {
                 model: root.actionList
@@ -208,18 +208,18 @@ Rectangle {
                     required property var modelData
                     Layout.preferredHeight: 26
                     Layout.preferredWidth: actionLabel.implicitWidth + 20
-                    radius: 6
+                    radius: Appearance.radiusSmall + 2
                     color: actionMouseArea.containsMouse ? Theme.lighter_background : Theme.selection
                     border.color: Theme.selection
-                    border.width: 1
+                    border.width: Appearance.borderWidthThin
 
                     Text {
                         id: actionLabel
                         anchors.centerIn: parent
                         text: modelData.text || modelData.id
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 11
-                        font.bold: true
+                        font.family: Fonts.uiFont
+                        font.pixelSize: Fonts.sizeSmall
+                        font.weight: Fonts.weightBold
                         color: Theme.foreground
                     }
 
@@ -240,7 +240,7 @@ Rectangle {
         id: progressBar
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        height: 2
+        height: Appearance.borderWidthMedium
         visible: root.hasTimeout
         color: root.accentColor
         width: parent.width * Math.max(0.0, Math.min(1.0, root.progress))

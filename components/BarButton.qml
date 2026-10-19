@@ -12,17 +12,17 @@ Rectangle {
     property bool active: false
     property bool accentActive: false
     property color customColor: "transparent"
-    property int customPadding: 8
-    property int iconSize: Theme.fontSizeLarge
-    property int textSize: Theme.fontSizeRegular
+    property int customPadding: Appearance.buttonPadding
+    property int iconSize: Icons.sizeNormal
+    property int textSize: Fonts.sizeRegular
 
     signal clicked()
 
-    implicitWidth: Math.max(Theme.barHeight - 4, contentRow.implicitWidth + (customPadding * 2))
-    implicitHeight: Theme.barHeight - 4
+    implicitWidth: Math.max(Appearance.barButtonHeight, contentRow.implicitWidth + (customPadding * 2))
+    implicitHeight: Appearance.barButtonHeight
     width: implicitWidth
     height: implicitHeight
-    radius: Theme.radiusSmall
+    radius: Appearance.buttonRadius
 
     color: {
         if (active) return Theme.selection
@@ -31,18 +31,18 @@ Rectangle {
     }
 
     Behavior on color {
-        ColorAnimation { duration: Theme.animDuration }
+        ColorAnimation { duration: Appearance.animDurationNormal }
     }
 
     Row {
         id: contentRow
         anchors.centerIn: parent
-        spacing: 6
+        spacing: Appearance.spacingMedium - 2 // 6px
 
         Text {
             visible: root.icon.length > 0
             text: root.icon
-            font.family: Theme.fontFamily
+            font.family: Icons.effectiveFont(root.icon)
             font.pixelSize: root.iconSize
             color: {
                 if (root.accentActive || root.active) return Theme.accent
@@ -55,7 +55,7 @@ Rectangle {
         Text {
             visible: root.text.length > 0
             text: root.text
-            font.family: Theme.fontFamily
+            font.family: Fonts.uiFont
             font.pixelSize: root.textSize
             font.bold: root.active
             color: root.active ? Theme.accent : Theme.foreground
@@ -69,8 +69,8 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         width: Math.min(parent.width - 4, 16)
-        height: 2
-        radius: 1
+        height: Appearance.borderWidthMedium
+        radius: Appearance.borderWidthThin
         color: Theme.accent
     }
 

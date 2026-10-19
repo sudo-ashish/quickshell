@@ -62,7 +62,7 @@ Item {
 
                     Text {
                         text: root.service.icon
-                        font.family: Theme.fontFamily
+                        font.family: Icons.effectiveFont(root.service.icon)
                         font.pixelSize: 26
                         color: Theme.foreground
                         anchors.verticalCenter: parent.verticalCenter
@@ -78,7 +78,7 @@ Item {
                                 if (root.service.connectingSsid) return root.service.connectingSsid
                                 return root.service.currentSsid || "Not Connected"
                             }
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 15
                             font.bold: true
                             color: Theme.foreground
@@ -93,7 +93,7 @@ Item {
                                 if (root.service.currentSsid) return root.service.connectionPhrase
                                 return "DISCONNECTED"
                             }
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 10
                             font.bold: true
                             color: root.service.connectingSsid ? Theme.accent : Theme.muted
@@ -112,7 +112,7 @@ Item {
                         visible: root.service.wifiEnabled && root.service.currentSsid !== ""
                         width: 28
                         height: 28
-                        radius: 3
+                        radius: Appearance.radiusSmall
                         color: topDisMouse.containsMouse ? Theme.darker_background : Theme.dark_background
                         border.color: topDisMouse.containsMouse ? Theme.red : Theme.selection
                         border.width: 1
@@ -120,7 +120,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: "󰌙"
-                            font.family: Theme.fontFamily
+                            font.family: Icons.effectiveFont("󰌙")
                             font.pixelSize: 14
                             color: topDisMouse.containsMouse ? Theme.red : Theme.muted
                         }
@@ -138,7 +138,7 @@ Item {
                     Rectangle {
                         width: 28
                         height: 28
-                        radius: 3
+                        radius: Appearance.radiusSmall
                         color: root.showQrView ? Theme.selection : (qrMouse.containsMouse ? Theme.lighter_background : Theme.dark_background)
                         border.color: root.showQrView ? Theme.accent : Theme.selection
                         border.width: 1
@@ -146,7 +146,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             text: "󰐲"
-                            font.family: Theme.fontFamily
+                            font.family: Icons.effectiveFont("󰐲")
                             font.pixelSize: 16
                             color: root.showQrView ? Theme.accent : Theme.foreground
                         }
@@ -193,7 +193,7 @@ Item {
 
                     Text {
                         text: "Scan to Join Wi-Fi"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 13
                         font.bold: true
                         color: Theme.foreground
@@ -206,7 +206,7 @@ Item {
                         width: 210
                         height: 210
                         color: Theme.bright_foreground
-                        radius: 4
+                        radius: Appearance.radiusSmall
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         readonly property int size: root.service.qrSize > 0 ? root.service.qrSize : 1
@@ -235,7 +235,7 @@ Item {
                             anchors.centerIn: parent
                             visible: root.service.qrLoading
                             text: "Generating QR..."
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 11
                             color: Theme.darker_background
                         }
@@ -244,7 +244,7 @@ Item {
                             anchors.centerIn: parent
                             visible: !root.service.qrLoading && root.service.qrSize === 0
                             text: root.service.qrError || "No QR available"
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 10
                             color: Theme.red
                         }
@@ -252,7 +252,7 @@ Item {
 
                     Text {
                         text: "SSID: " + root.service.currentSsid
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         color: Theme.muted
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -261,14 +261,14 @@ Item {
                     Rectangle {
                         width: 80
                         height: 26
-                        radius: 3
+                        radius: Appearance.radiusSmall
                         color: Theme.dark_background
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Text {
                             anchors.centerIn: parent
                             text: "Close"
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 11
                             color: Theme.foreground
                         }
@@ -295,7 +295,7 @@ Item {
 
                     Text {
                         text: "DNS PROVIDER"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -321,7 +321,7 @@ Item {
 
                                 width: dnsRow.cellWidth
                                 height: 28
-                                radius: 3
+                                radius: Appearance.radiusSmall
                                 color: isActive ? Theme.selection : (dnsMouse.containsMouse ? Theme.lighter_background : Theme.dark_background)
                                 border.color: isActive ? Theme.accent : (dnsMouse.containsMouse ? Theme.muted : Theme.selection)
                                 border.width: 1
@@ -329,9 +329,9 @@ Item {
                                 Text {
                                     anchors.centerIn: parent
                                     text: dnsPill.modelData
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.uiFont
                                     font.pixelSize: 11
-                                    font.bold: dnsPill.isActive
+                                    font.bold: dnsPill.isActive 
                                     color: Theme.foreground
                                 }
 
@@ -359,7 +359,7 @@ Item {
                     visible: root.showPasswordInput
                     width: parent.width
                     height: root.showPasswordInput ? 72 : 0
-                    radius: 4
+                    radius: Appearance.radiusSmall
                     color: Theme.lighter_background
                     border.color: Theme.accent
                     border.width: 1
@@ -371,7 +371,7 @@ Item {
 
                         Text {
                             text: "Connect to: " + root.selectedSsid
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 11
                             font.bold: true
                             color: Theme.accent
@@ -386,7 +386,7 @@ Item {
                             Rectangle {
                                 width: parent.width - 130
                                 height: 28
-                                radius: 3
+                                radius: Appearance.radiusSmall
                                 color: Theme.dark_background
                                 border.color: Theme.selection
 
@@ -395,7 +395,7 @@ Item {
                                     anchors.fill: parent
                                     anchors.margins: 6
                                     echoMode: TextInput.Password
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.monoFont
                                     font.pixelSize: 11
                                     color: Theme.foreground
                                     clip: true
@@ -408,7 +408,7 @@ Item {
                                 readonly property bool isJoining: root.service.connectingSsid === root.selectedSsid
                                 width: isJoining ? 70 : 56
                                 height: 28
-                                radius: 3
+                                radius: Appearance.radiusSmall
                                 color: Theme.accent
 
                                 function join() {
@@ -421,7 +421,7 @@ Item {
                                 Text {
                                     anchors.centerIn: parent
                                     text: joinBtn.isJoining ? "Joining…" : "Join"
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.uiFont
                                     font.pixelSize: 11
                                     font.bold: true
                                     color: Theme.bright_foreground
@@ -438,13 +438,13 @@ Item {
                             Rectangle {
                                 width: 56
                                 height: 28
-                                radius: 3
+                                radius: Appearance.radiusSmall
                                 color: Theme.dark_background
 
                                 Text {
                                     anchors.centerIn: parent
                                     text: "Cancel"
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.uiFont
                                     font.pixelSize: 11
                                     color: Theme.muted
                                 }
@@ -470,7 +470,7 @@ Item {
 
                     Text {
                         text: "KNOWN NETWORKS"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -491,7 +491,7 @@ Item {
 
                             width: parent.width
                             height: 42
-                            radius: 4
+                            radius: Appearance.radiusSmall
                             color: isConnected ? Theme.selection : (isSelected || isConnecting ? Theme.selection : (kMouse.containsMouse ? Theme.lighter_background : "transparent"))
                             border.color: isConnected ? Theme.accent : (isSelected || isConnecting ? Theme.selection : "transparent")
                             border.width: (isConnected || isSelected || isConnecting) ? 1 : 0
@@ -504,7 +504,7 @@ Item {
 
                                 Text {
                                     text: root.service.wifiIconFor(knownRow.modelData.signal)
-                                    font.family: Theme.fontFamily
+                                    font.family: Icons.effectiveFont(text)
                                     font.pixelSize: 16
                                     color: (knownRow.isConnected || knownRow.isConnecting) ? Theme.accent : Theme.foreground
                                     anchors.verticalCenter: parent.verticalCenter
@@ -516,9 +516,9 @@ Item {
 
                                     Text {
                                         text: knownRow.modelData.ssid
-                                        font.family: Theme.fontFamily
+                                        font.family: Fonts.uiFont
                                         font.pixelSize: 12
-                                        font.bold: knownRow.isConnected
+                                        font.bold: knownRow.isConnected 
                                         color: Theme.foreground
                                         elide: Text.ElideRight
                                         width: 115
@@ -526,7 +526,7 @@ Item {
 
                                     Text {
                                         text: knownRow.isConnecting ? "Connecting..." : (knownRow.hasError ? root.service.connectionErrorMessage : (knownRow.isConnected ? "Connected" : "Saved"))
-                                        font.family: Theme.fontFamily
+                                        font.family: Fonts.uiFont
                                         font.pixelSize: 10
                                         color: knownRow.isConnecting ? Theme.accent : (knownRow.hasError ? Theme.red : (knownRow.isConnected ? Theme.accent : Theme.muted))
                                     }
@@ -544,7 +544,7 @@ Item {
                                 Text {
                                     visible: knownRow.modelData.isSecured
                                     text: "󰌾"
-                                    font.family: Theme.fontFamily
+                                    font.family: Icons.effectiveFont("󰌾")
                                     font.pixelSize: 12
                                     color: Theme.muted
                                     anchors.verticalCenter: parent.verticalCenter
@@ -555,7 +555,7 @@ Item {
                                     id: connBtn
                                     width: knownRow.isConnecting ? 76 : (knownRow.isConnected ? 68 : 54)
                                     height: 24
-                                    radius: 3
+                                    radius: Appearance.radiusSmall
                                     color: knownRow.isConnecting ? Theme.selection : (knownRow.isConnected ? (connMouse.containsMouse ? Theme.darker_background : Theme.dark_background) : (connMouse.containsMouse ? Theme.selection : Theme.dark_background))
                                     border.color: knownRow.isConnecting ? Theme.accent : (knownRow.isConnected ? (connMouse.containsMouse ? Theme.red : Theme.selection) : (connMouse.containsMouse ? Theme.accent : Theme.selection))
                                     border.width: 1
@@ -564,7 +564,7 @@ Item {
                                     Text {
                                         anchors.centerIn: parent
                                         text: knownRow.isConnecting ? "Connecting…" : (knownRow.isConnected ? "Disconnect" : "Connect")
-                                        font.family: Theme.fontFamily
+                                        font.family: Fonts.uiFont
                                         font.pixelSize: 10
                                         font.bold: true
                                         color: knownRow.isConnecting ? Theme.accent : (knownRow.isConnected ? (connMouse.containsMouse ? Theme.red : Theme.foreground) : (connMouse.containsMouse ? Theme.accent : Theme.foreground))
@@ -592,7 +592,7 @@ Item {
                                     id: fgtBtn
                                     width: 48
                                     height: 24
-                                    radius: 3
+                                    radius: Appearance.radiusSmall
                                     color: fgtMouse.containsMouse ? Theme.darker_background : Theme.dark_background
                                     border.color: fgtMouse.containsMouse ? Theme.red : Theme.selection
                                     border.width: 1
@@ -601,7 +601,7 @@ Item {
                                     Text {
                                         anchors.centerIn: parent
                                         text: "Forget"
-                                        font.family: Theme.fontFamily
+                                        font.family: Fonts.uiFont
                                         font.pixelSize: 10
                                         font.bold: true
                                         color: fgtMouse.containsMouse ? Theme.red : Theme.muted
@@ -646,7 +646,7 @@ Item {
 
                     Text {
                         text: "OTHER NETWORKS"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         color: Theme.muted
@@ -675,7 +675,7 @@ Item {
 
                                 width: otherList.width
                                 height: (isConnecting || hasError) ? 40 : 34
-                                radius: 3
+                                radius: Appearance.radiusSmall
                                 color: isConnecting ? Theme.selection : (oMouse.containsMouse ? Theme.lighter_background : "transparent")
                                 border.color: isConnecting ? Theme.selection : "transparent"
                                 border.width: isConnecting ? 1 : 0
@@ -688,7 +688,7 @@ Item {
 
                                     Text {
                                         text: root.service.wifiIconFor(otherRow.modelData.signal)
-                                        font.family: Theme.fontFamily
+                                        font.family: Icons.effectiveFont(text)
                                         font.pixelSize: 16
                                         color: otherRow.isConnecting ? Theme.accent : Theme.foreground
                                         anchors.verticalCenter: parent.verticalCenter
@@ -700,10 +700,10 @@ Item {
 
                                         Text {
                                             text: otherRow.modelData.ssid
-                                            font.family: Theme.fontFamily
+                                            font.family: Fonts.uiFont
                                             font.pixelSize: 12
                                             color: Theme.foreground
-                                            font.bold: otherRow.modelData.active
+                                            font.bold: otherRow.modelData.active 
                                             elide: Text.ElideRight
                                             width: (otherRow.isConnecting || otherRow.hasError) ? 140 : 170
                                         }
@@ -711,7 +711,7 @@ Item {
                                         Text {
                                             visible: otherRow.isConnecting || otherRow.hasError
                                             text: otherRow.isConnecting ? "Connecting..." : (otherRow.hasError ? root.service.connectionErrorMessage : "")
-                                            font.family: Theme.fontFamily
+                                            font.family: Fonts.uiFont
                                             font.pixelSize: 9
                                             color: otherRow.isConnecting ? Theme.accent : Theme.red
                                         }
@@ -729,7 +729,7 @@ Item {
                                     Text {
                                         visible: otherRow.modelData.isSecured
                                         text: "󰌾"
-                                        font.family: Theme.fontFamily
+                                        font.family: Icons.effectiveFont("󰌾")
                                         font.pixelSize: 12
                                         color: Theme.muted
                                         anchors.verticalCenter: parent.verticalCenter
@@ -739,7 +739,7 @@ Item {
                                     Rectangle {
                                         width: otherRow.isConnecting ? 76 : 54
                                         height: 24
-                                        radius: 3
+                                        radius: Appearance.radiusSmall
                                         color: otherRow.isConnecting ? Theme.selection : (oConnMouse.containsMouse ? Theme.selection : Theme.dark_background)
                                         border.color: otherRow.isConnecting ? Theme.accent : (oConnMouse.containsMouse ? Theme.accent : Theme.selection)
                                         border.width: 1
@@ -748,7 +748,7 @@ Item {
                                         Text {
                                             anchors.centerIn: parent
                                             text: otherRow.isConnecting ? "Connecting…" : "Connect"
-                                            font.family: Theme.fontFamily
+                                            font.family: Fonts.uiFont
                                             font.pixelSize: 10
                                             font.bold: true
                                             color: (otherRow.isConnecting || oConnMouse.containsMouse) ? Theme.accent : Theme.foreground

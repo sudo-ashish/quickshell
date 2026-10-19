@@ -280,13 +280,13 @@ PanelWindow {
     // Main Modal Dialog Card
     Rectangle {
         id: card
-        width: 700
-        height: 468
+        width: Appearance.launcherModalWidth
+        height: Appearance.launcherModalHeight
         anchors.centerIn: parent
-        radius: 14
+        radius: Appearance.dialogRadius
         color: Theme.withAlpha(Theme.background, Theme.baseOpacity)
         border.color: Theme.selection
-        border.width: 1
+        border.width: Appearance.borderWidthThin
 
         // Consume click inside card so backdrop doesn't trigger dismissal
         MouseArea {
@@ -298,7 +298,7 @@ PanelWindow {
 
         Item {
             anchors.fill: parent
-            anchors.margins: 24
+            anchors.margins: Appearance.paddingXl + 4
 
             // Top Header: Search prompt, text input, mode buttons
             RowLayout {
@@ -306,22 +306,22 @@ PanelWindow {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                height: 36
-                spacing: 12
+                height: Appearance.launcherItemHeight
+                spacing: Appearance.spacingLarge
 
                 // Search Prompt icon
                 Rectangle {
-                    width: 32
-                    height: 32
-                    radius: 8
+                    width: Appearance.buttonHeight
+                    height: Appearance.buttonHeight
+                    radius: Appearance.radiusMedium
                     color: Theme.dark_background
                     Layout.alignment: Qt.AlignVCenter
 
                     Text {
                         anchors.centerIn: parent
-                        text: ""
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 14
+                        text: Icons.search
+                        font.family: Icons.effectiveFont(text)
+                        font.pixelSize: Fonts.sizeMedium
                         color: Theme.muted
                     }
                 }
@@ -333,22 +333,22 @@ PanelWindow {
 
                     Text {
                         anchors.fill: parent
-                        anchors.leftMargin: 4
+                        anchors.leftMargin: Appearance.spacingSmall
                         verticalAlignment: Text.AlignVCenter
                         visible: searchInput.text.length === 0
                         text: root.currentMode === 0 ? "Search applications..." : (root.currentMode === 1 ? "Type a command to run..." : (root.currentMode === 2 ? "Search files..." : "Search open windows..."))
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeRegular
+                        font.family: Fonts.uiFont
+                        font.pixelSize: Fonts.sizeRegular
                         color: Theme.muted
                     }
 
                     TextInput {
                         id: searchInput
                         anchors.fill: parent
-                        anchors.leftMargin: 4
+                        anchors.leftMargin: Appearance.spacingSmall
                         verticalAlignment: TextInput.AlignVCenter
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeRegular
+                        font.family: Fonts.uiFont
+                        font.pixelSize: Fonts.sizeRegular
                         color: Theme.foreground
                         selectionColor: Theme.selection
                         selectedTextColor: Theme.bright_foreground
@@ -403,21 +403,21 @@ PanelWindow {
                 // Mode Switcher Pills: Apps | Run | Files | Windows
                 Row {
                     Layout.alignment: Qt.AlignVCenter
-                    spacing: 6
+                    spacing: Appearance.spacingMedium - 2
 
                     // Apps Mode Pill
                     Rectangle {
                         width: 58
                         height: 28
-                        radius: 8
+                        radius: Appearance.radiusMedium
                         color: root.currentMode === 0 ? Theme.accent : (appsMouse.containsMouse ? Theme.lighter_background : Theme.dark_background)
 
                         Text {
                             anchors.centerIn: parent
                             text: "Apps"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            font.bold: root.currentMode === 0
+                            font.family: Fonts.uiFont
+                            font.pixelSize: 12
+                            font.bold: root.currentMode === 0 
                             color: root.currentMode === 0 ? Theme.darker_background : Theme.foreground
                         }
 
@@ -434,15 +434,15 @@ PanelWindow {
                     Rectangle {
                         width: 52
                         height: 28
-                        radius: 8
+                        radius: Appearance.radiusMedium
                         color: root.currentMode === 1 ? Theme.accent : (runMouse.containsMouse ? Theme.lighter_background : Theme.dark_background)
 
                         Text {
                             anchors.centerIn: parent
                             text: "Run"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            font.bold: root.currentMode === 1
+                            font.family: Fonts.uiFont
+                            font.pixelSize: 12
+                            font.bold: root.currentMode === 1 
                             color: root.currentMode === 1 ? Theme.darker_background : Theme.foreground
                         }
 
@@ -459,15 +459,15 @@ PanelWindow {
                     Rectangle {
                         width: 54
                         height: 28
-                        radius: 8
+                        radius: Appearance.radiusMedium
                         color: root.currentMode === 2 ? Theme.accent : (filesMouse.containsMouse ? Theme.lighter_background : Theme.dark_background)
 
                         Text {
                             anchors.centerIn: parent
                             text: "Files"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            font.bold: root.currentMode === 2
+                            font.family: Fonts.uiFont
+                            font.pixelSize: 12
+                            font.bold: root.currentMode === 2 
                             color: root.currentMode === 2 ? Theme.darker_background : Theme.foreground
                         }
 
@@ -484,15 +484,15 @@ PanelWindow {
                     Rectangle {
                         width: 58
                         height: 28
-                        radius: 8
+                        radius: Appearance.radiusMedium
                         color: root.currentMode === 3 ? Theme.accent : (winMouse.containsMouse ? Theme.lighter_background : Theme.dark_background)
 
                         Text {
                             anchors.centerIn: parent
                             text: "Windows"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            font.bold: root.currentMode === 3
+                            font.family: Fonts.uiFont
+                            font.pixelSize: 12
+                            font.bold: root.currentMode === 3 
                             color: root.currentMode === 3 ? Theme.darker_background : Theme.foreground
                         }
 
@@ -510,7 +510,7 @@ PanelWindow {
             // Results List Container
             Item {
                 anchors.top: topBar.bottom
-                anchors.topMargin: 16
+                anchors.topMargin: Appearance.spacingXl
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
@@ -518,9 +518,9 @@ PanelWindow {
                 ListView {
                     id: listView
                     anchors.fill: parent
-                    anchors.rightMargin: 12
+                    anchors.rightMargin: Appearance.spacingLarge
                     clip: true
-                    spacing: 4
+                    spacing: Appearance.spacingSmall
                     model: root.currentItems
 
                     delegate: Rectangle {
@@ -530,7 +530,7 @@ PanelWindow {
 
                         width: listView.width
                         height: 42
-                        radius: 10
+                        radius: Appearance.launcherItemRadius
 
                         readonly property bool isSelected: listView.currentIndex === index
                         readonly property bool isHovered: itemMouse.containsMouse
@@ -541,25 +541,25 @@ PanelWindow {
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 12
-                            spacing: 12
+                            anchors.leftMargin: Appearance.spacingLarge
+                            anchors.rightMargin: Appearance.spacingLarge
+                            spacing: Appearance.spacingLarge
 
                             // App / Item Icon
                             Image {
-                                Layout.preferredWidth: 24
-                                Layout.preferredHeight: 24
+                                Layout.preferredWidth: Appearance.launcherIconSize
+                                Layout.preferredHeight: Appearance.launcherIconSize
                                 Layout.alignment: Qt.AlignVCenter
                                 fillMode: Image.PreserveAspectFit
                                 source: modelData.icon || "image://icon/application-x-executable"
-                                sourceSize: Qt.size(24, 24)
+                                sourceSize: Qt.size(Appearance.launcherIconSize, Appearance.launcherIconSize)
                             }
 
                             // App Name
                             Text {
                                 text: modelData.name || ""
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeRegular
+                                font.family: Fonts.uiFont
+                                font.pixelSize: Fonts.sizeRegular
                                 font.weight: Font.Medium
                                 color: isSelected ? Theme.darker_background : Theme.foreground
                                 elide: Text.ElideRight
@@ -570,8 +570,8 @@ PanelWindow {
                             Text {
                                 visible: (modelData.generic || "") !== ""
                                 text: "(" + (modelData.generic || "") + ")"
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
+                                font.family: Fonts.uiFont
+                                font.pixelSize: 12
                                 font.italic: true
                                 font.weight: Font.Light
                                 color: isSelected ? Theme.dark_foreground : Theme.muted

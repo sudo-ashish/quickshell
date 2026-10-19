@@ -434,9 +434,9 @@ Item {
                 id: popupColumn
                 anchors.right: parent.right
                 anchors.top: parent.top
-                anchors.topMargin: Theme.barHeight + 12
-                anchors.rightMargin: 16
-                spacing: 8
+                anchors.topMargin: Appearance.notificationTopMargin
+                anchors.rightMargin: Appearance.notificationRightMargin
+                spacing: Appearance.notificationSpacing
 
                 Repeater {
                     model: popupModel

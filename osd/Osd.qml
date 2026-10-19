@@ -214,13 +214,13 @@ Item {
             id: card
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 64
-            radius: 24
+            anchors.bottomMargin: Appearance.osdBottomMargin
+            radius: Appearance.osdRadius
             color: Theme.withAlpha(Theme.background, Theme.baseOpacity)
-            border.color: root.isOverMax ? Theme.yellow : Theme.selection
-            border.width: root.isOverMax ? 1.5 : 1
+            border.color: "transparent"
+            border.width: Appearance.borderWidthNone
             width: Math.max(120, contentRow.implicitWidth + 38)
-            height: 48
+            height: Appearance.osdHeight
 
             transformOrigin: Item.Center
             opacity: root.animProgress
@@ -232,14 +232,14 @@ Item {
             Row {
                 id: contentRow
                 anchors.centerIn: parent
-                spacing: 14
+                spacing: Appearance.osdSpacing
 
                 // OSD Icon
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.icon
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 20
+                    font.family: Icons.effectiveFont(root.icon)
+                    font.pixelSize: Fonts.sizeTitle
                     color: {
                         if (root.isMuted) return Theme.red
                         if (root.isOverMax) return Theme.yellow
@@ -251,14 +251,14 @@ Item {
                 Rectangle {
                     visible: root.hasProgress
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 140
-                    height: 6
-                    radius: 3
+                    width: Appearance.osdTrackWidth
+                    height: Appearance.osdTrackHeight
+                    radius: Appearance.osdTrackRadius
                     color: Theme.withAlpha(Theme.selection, 0.25)
 
                     Rectangle {
                         height: parent.height
-                        radius: 3
+                        radius: Appearance.osdTrackRadius
                         color: {
                             if (root.isMuted) return Theme.red
                             if (root.isOverMax) return Theme.yellow
@@ -278,9 +278,9 @@ Item {
                     visible: root.message !== ""
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.message
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 13
-                    font.weight: Font.DemiBold
+                    font.family: Fonts.uiFont
+                    font.pixelSize: Fonts.sizeRegular
+                    font.weight: Fonts.weightDemiBold
                     color: {
                         if (root.isMuted) return Theme.red
                         if (root.isOverMax) return Theme.yellow

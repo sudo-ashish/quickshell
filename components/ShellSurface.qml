@@ -6,11 +6,11 @@ import "../theme"
 Item {
     id: root
 
-    // Visual properties matching centralized theme
+    // Visual properties matching centralized appearance theme
     property color surfaceColor: Theme.withAlpha(Theme.background, Theme.baseOpacity)
     property color borderColor: "transparent"
-    property int borderWidth: 0
-    property int surfaceRadius: 10
+    property int borderWidth: Appearance.borderWidthNone
+    property int surfaceRadius: Appearance.surfaceRadius
 
     // Exposed reference to the visual container
     readonly property Item surfaceContainer: backgroundRect

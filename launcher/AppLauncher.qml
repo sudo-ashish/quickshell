@@ -11,7 +11,7 @@ import "LauncherModel.js" as LauncherModel
 PanelWindow {
     id: root
 
-    readonly property string fontFamily: Theme.fontFamily
+    readonly property string fontFamily: Fonts.uiFont
 
     property bool isOpen: false
     property var allApps: []
@@ -154,14 +154,14 @@ PanelWindow {
     // ─────────────────────────────────────────────────────────────────────────
     ShellSurface {
         id: surface
-        width: 600
-        height: 410
+        width: Appearance.launcherWidth
+        height: Appearance.launcherHeight
         anchors.centerIn: parent
 
-        surfaceRadius: 10
+        surfaceRadius: Appearance.launcherRadius
         surfaceColor: Theme.withAlpha(Theme.background, Theme.baseOpacity)
         borderColor: "transparent"
-        borderWidth: 0
+        borderWidth: Appearance.borderWidthNone
 
         // Consume clicks inside card so backdrop doesn't trigger dismissal
         MouseArea {
@@ -169,10 +169,10 @@ PanelWindow {
             onClicked: searchInput.forceActiveFocus()
         }
 
-        // Main Box with exact 30px padding and 10px spacing
+        // Main Box with padding and spacing
         Item {
             anchors.fill: parent
-            anchors.margins: 30
+            anchors.margins: Appearance.launcherPadding
 
             // ── Inputbar ─────────────────────────────────────────────────────
             RowLayout {
@@ -180,15 +180,15 @@ PanelWindow {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                height: 32
-                spacing: 10
+                height: Appearance.buttonHeight
+                spacing: Appearance.spacingMedium + 2
 
-                // Prompt glyph ""
+                // Prompt glyph
                 Text {
                     id: promptGlyph
-                    text: ""
-                    font.family: root.fontFamily
-                    font.pixelSize: 14
+                    text: Icons.search
+                    font.family: Icons.effectiveFont(text)
+                    font.pixelSize: Fonts.sizeMedium
                     color: Theme.foreground
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -204,7 +204,7 @@ PanelWindow {
                         verticalAlignment: Text.AlignVCenter
                         text: "Search..."
                         font.family: root.fontFamily
-                        font.pixelSize: 13
+                        font.pixelSize: Fonts.sizeRegular
                         color: Theme.muted
                         visible: searchInput.text.length === 0
                     }
@@ -214,7 +214,7 @@ PanelWindow {
                         anchors.fill: parent
                         verticalAlignment: TextInput.AlignVCenter
                         font.family: root.fontFamily
-                        font.pixelSize: 13
+                        font.pixelSize: Fonts.sizeRegular
                         color: Theme.foreground
                         selectionColor: Theme.selection
                         selectedTextColor: Theme.bright_foreground
@@ -299,8 +299,8 @@ PanelWindow {
                         required property int index
 
                         width: listView.width
-                        height: 36
-                        radius: 10
+                        height: Appearance.launcherItemHeight
+                        radius: Appearance.launcherItemRadius
 
                         readonly property bool isSelected: listView.currentIndex === index
                         readonly property bool isHovered: itemMouse.containsMouse
@@ -312,14 +312,14 @@ PanelWindow {
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 10
-                            anchors.rightMargin: 10
-                            spacing: 10
+                            anchors.leftMargin: Appearance.paddingMedium
+                            anchors.rightMargin: Appearance.paddingMedium
+                            spacing: Appearance.spacingMedium + 2
 
-                            // 24px Element Icon container with graceful fallback badge
+                            // Element Icon container with graceful fallback badge
                             Item {
-                                Layout.preferredWidth: 24
-                                Layout.preferredHeight: 24
+                                Layout.preferredWidth: Appearance.launcherIconSize
+                                Layout.preferredHeight: Appearance.launcherIconSize
                                 Layout.alignment: Qt.AlignVCenter
 
                                 Image {
@@ -327,18 +327,18 @@ PanelWindow {
                                     anchors.fill: parent
                                     fillMode: Image.PreserveAspectFit
                                     source: modelData.icon || ""
-                                    sourceSize: Qt.size(24, 24)
+                                    sourceSize: Qt.size(Appearance.launcherIconSize, Appearance.launcherIconSize)
                                     visible: status === Image.Ready && (modelData.icon || "") !== ""
                                 }
 
                                 Rectangle {
                                     id: fallbackBadge
                                     anchors.fill: parent
-                                    radius: 6
+                                    radius: Appearance.radiusSmall + 2
                                     visible: !appIconImg.visible
                                     color: element.isSelected ? Theme.selection : Theme.withAlpha(Theme.accent, 0.20)
                                     border.color: element.isSelected ? Theme.accent : Theme.selection
-                                    border.width: 1
+                                    border.width: Appearance.borderWidthThin
 
                                     Text {
                                         anchors.centerIn: parent
@@ -346,11 +346,11 @@ PanelWindow {
                                             if (modelData.name && modelData.name.length > 0) {
                                                 return modelData.name.charAt(0).toUpperCase()
                                             }
-                                            return "󰀻"
+                                            return Icons.apps
                                         }
                                         font.family: root.fontFamily
-                                        font.pixelSize: 11
-                                        font.bold: true
+                                        font.pixelSize: Fonts.sizeSmall
+                                        font.weight: Fonts.weightBold
                                         color: element.isSelected ? Theme.darker_background : Theme.accent
                                     }
                                 }
@@ -360,8 +360,8 @@ PanelWindow {
                             Text {
                                 text: modelData.name || ""
                                 font.family: root.fontFamily
-                                font.pixelSize: 13
-                                font.weight: element.isSelected ? Font.Bold : Font.Medium
+                                font.pixelSize: Fonts.sizeRegular
+                                font.weight: element.isSelected ? Fonts.weightBold : Fonts.weightMedium
                                 color: element.isSelected ? Theme.darker_background : Theme.foreground
                                 elide: Text.ElideRight
                                 Layout.alignment: Qt.AlignVCenter
@@ -372,9 +372,9 @@ PanelWindow {
                                 visible: (modelData.generic || "") !== ""
                                 text: "(" + (modelData.generic || "") + ")"
                                 font.family: root.fontFamily
-                                font.pixelSize: 11
+                                font.pixelSize: Fonts.sizeSmall
                                 font.italic: true
-                                font.weight: Font.Light
+                                font.weight: Fonts.weightLight
                                 color: element.isSelected ? Theme.dark_background : Theme.muted
                                 elide: Text.ElideRight
                                 Layout.alignment: Qt.AlignVCenter

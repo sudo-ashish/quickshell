@@ -121,7 +121,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "󰃭"
                         color: heroMouse.containsMouse ? Theme.accent : Theme.foreground
-                        font.family: Theme.fontFamily
+                        font.family: Icons.effectiveFont("󰃭")
                         font.pixelSize: 38
                     }
 
@@ -131,7 +131,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         text: Qt.formatDate(root.today, "MMMM d")
                         color: heroMouse.containsMouse ? Theme.accent : Theme.foreground
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 34
                         font.bold: true
                     }
@@ -160,7 +160,7 @@ Item {
                     Text {
                         text: root.today.getFullYear()
                         color: Theme.muted
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         font.letterSpacing: 1
@@ -192,7 +192,7 @@ Item {
                     Text {
                         text: root.yearDonePercent + "%"
                         color: Theme.muted
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.monoFont
                         font.pixelSize: 11
                         font.bold: true
                         anchors.verticalCenter: parent.verticalCenter
@@ -231,7 +231,7 @@ Item {
                                 anchors.centerIn: parent
                                 text: "W"
                                 color: Theme.muted
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 10
                                 font.bold: true
                                 font.letterSpacing: 1
@@ -254,7 +254,7 @@ Item {
                                     anchors.centerIn: parent
                                     text: modelData
                                     color: Theme.muted
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.uiFont
                                     font.pixelSize: 10
                                     font.bold: true
                                     font.letterSpacing: 0.5
@@ -281,7 +281,7 @@ Item {
                                     anchors.centerIn: parent
                                     text: weekRow.modelData.week
                                     color: Theme.muted
-                                    font.family: Theme.fontFamily
+                                    font.family: Fonts.monoFont
                                     font.pixelSize: 11
                                 }
                             }
@@ -299,7 +299,7 @@ Item {
 
                                     width: 42
                                     height: 30
-                                    radius: 2
+                                    radius: Appearance.radiusXs
                                     color: "transparent"
                                     border.width: modelData.today ? 1 : 0
                                     border.color: modelData.today ? Theme.selection : "transparent"
@@ -312,9 +312,9 @@ Item {
                                             if (dayCell.modelData.inMonth) return Theme.foreground
                                             return Theme.dark_foreground
                                         }
-                                        font.family: Theme.fontFamily
+                                        font.family: Fonts.uiFont
                                         font.pixelSize: 12
-                                        font.bold: dayCell.modelData.today
+                                        font.bold: dayCell.modelData.today 
                                     }
                                 }
                             }
@@ -335,7 +335,7 @@ Item {
                     // Prev Month Chevron (<)
                     Text {
                         text: "󰅁"
-                        font.family: Theme.fontFamily
+                        font.family: Icons.effectiveFont("󰅁")
                         font.pixelSize: 14
                         color: prevM.containsMouse ? Theme.foreground : Theme.muted
                         anchors.verticalCenter: parent.verticalCenter
@@ -354,7 +354,7 @@ Item {
                     Text {
                         text: Qt.formatDate(root.viewDate, "MMMM yyyy").toUpperCase()
                         color: Theme.muted
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 11
                         font.bold: true
                         font.letterSpacing: 1.2
@@ -364,7 +364,7 @@ Item {
                     // Next Month Chevron (>)
                     Text {
                         text: "󰅂"
-                        font.family: Theme.fontFamily
+                        font.family: Icons.effectiveFont("󰅂")
                         font.pixelSize: 14
                         color: nextM.containsMouse ? Theme.foreground : Theme.muted
                         anchors.verticalCenter: parent.verticalCenter

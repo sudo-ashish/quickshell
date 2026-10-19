@@ -14,8 +14,8 @@ PopupWindow {
     property AudioService audioService: null
 
     property bool open: false
-    property int contentWidth: 350
-    property int contentHeight: 195
+    property int contentWidth: Appearance.mediaPopupWidth
+    property int contentHeight: Appearance.mediaPopupHeight
     property double lastClearedTime: 0
 
     // Interactive scrubbing state
@@ -245,13 +245,13 @@ PopupWindow {
             }
         }
 
-        // Dedicated crisp border overlay (z: 99 guarantees it sits above all artwork)
+        // Dedicated crisp border overlay
         Rectangle {
             anchors.fill: parent
             radius: cardRect.radius
             color: "transparent"
-            border.color: Theme.selection
-            border.width: 1
+            border.color: "transparent"
+            border.width: 0
             z: 99
         }
 
@@ -272,17 +272,17 @@ PopupWindow {
 
                 Text {
                     text: root.appIcon
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 14
+                    font.family: Icons.effectiveFont(text)
+                    font.pixelSize: Fonts.scale(14)
                     color: Theme.accent
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
                 Text {
                     text: root.audioOutputName
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 12
-                    font.weight: Font.Medium
+                    font.family: Fonts.uiFont
+                    font.pixelSize: Fonts.sizeSmall
+                    font.weight: Fonts.weightMedium
                     color: Theme.bright_foreground
                     anchors.verticalCenter: parent.verticalCenter
                     elide: Text.ElideRight
@@ -299,9 +299,9 @@ PopupWindow {
                 Text {
                     width: parent.width
                     text: root.controller ? root.controller.title : "No Media"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 17
-                    font.bold: true
+                    font.family: Fonts.uiFont
+                    font.pixelSize: Fonts.scale(17)
+                    font.weight: Fonts.weightBold
                     color: Theme.bright_foreground
                     elide: Text.ElideRight
                     maximumLineCount: 1
@@ -310,8 +310,8 @@ PopupWindow {
                 Text {
                     width: parent.width
                     text: root.controller ? root.controller.artist : "Unknown Artist"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 13
+                    font.family: Fonts.uiFont
+                    font.pixelSize: Fonts.sizeRegular
                     color: Theme.foreground
                     elide: Text.ElideRight
                     maximumLineCount: 1
@@ -453,16 +453,16 @@ PopupWindow {
                     Text {
                         anchors.left: parent.left
                         text: root.controller ? root.controller.formatTime(root.isDraggingSeek ? (root.dragProgress * root.controller.length) : root.controller.position) : "00:00"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.family: Fonts.monoFont
+                        font.pixelSize: Fonts.scale(11)
                         color: Theme.muted
                     }
 
                     Text {
                         anchors.right: parent.right
                         text: root.controller ? root.controller.formatTime(root.controller.length) : "00:00"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.family: Fonts.monoFont
+                        font.pixelSize: Fonts.scale(11)
                         color: Theme.muted
                     }
                 }
@@ -483,8 +483,8 @@ PopupWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "󰒝"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 20
+                        font.family: Icons.effectiveFont("󰒝")
+                        font.pixelSize: Fonts.scale(20)
                         color: root.controller && root.controller.shuffle ? Theme.accent : (shuffMouse.containsMouse ? Theme.bright_foreground : Theme.foreground)
                         scale: shuffMouse.pressed ? 0.90 : 1.0
 
@@ -510,8 +510,8 @@ PopupWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "󰒮"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 22
+                        font.family: Icons.effectiveFont("󰒮")
+                        font.pixelSize: Fonts.scale(22)
                         color: root.controller && root.controller.canGoPrevious ? (prevMouse.containsMouse ? Theme.bright_foreground : Theme.foreground) : Theme.muted
                         scale: prevMouse.pressed ? 0.90 : 1.0
 
@@ -537,8 +537,8 @@ PopupWindow {
                     Text {
                         anchors.centerIn: parent
                         text: root.controller && root.controller.isPlaying ? "󰏤" : "󰐊"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 26
+                        font.family: Icons.effectiveFont(text)
+                        font.pixelSize: Fonts.scale(26)
                         color: playMouse.containsMouse ? Theme.bright_foreground : Theme.foreground
                         scale: playMouse.pressed ? 0.88 : 1.0
 
@@ -565,8 +565,8 @@ PopupWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "󰒭"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 22
+                        font.family: Icons.effectiveFont("󰒭")
+                        font.pixelSize: Fonts.scale(22)
                         color: root.controller && root.controller.canGoNext ? (nextMouse.containsMouse ? Theme.bright_foreground : Theme.foreground) : Theme.muted
                         scale: nextMouse.pressed ? 0.90 : 1.0
 
@@ -595,8 +595,8 @@ PopupWindow {
                     Text {
                         anchors.centerIn: parent
                         text: parent.loopState === 2 ? "󰑘" : "󰑖"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 20
+                        font.family: Icons.effectiveFont(text)
+                        font.pixelSize: Fonts.scale(20)
                         color: parent.isLoopActive ? Theme.accent : (loopMouse.containsMouse ? Theme.bright_foreground : Theme.foreground)
                         scale: loopMouse.pressed ? 0.90 : 1.0
 

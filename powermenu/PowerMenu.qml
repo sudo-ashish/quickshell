@@ -28,8 +28,8 @@ PanelWindow {
     property int wallpaperIndex: 0
 
     // Corner radius settings
-    property int activeRadius: 14
-    property int inactiveRadius: 32
+    property int activeRadius: Appearance.powerMenuRadiusActive
+    property int inactiveRadius: Appearance.powerMenuRadiusInactive
 
     // Theme service bindings
     readonly property var themes: root.themeService ? root.themeService.themes : []
@@ -43,18 +43,20 @@ PanelWindow {
 
     // Target animated dimensions for the single unified surface (show up to 5 items)
     readonly property real targetWidth: {
-        if (root.currentView === "power") return 380
+        if (root.currentView === "power") return Appearance.powerMenuWidthPower
         if (root.currentView === "theme") {
             var tCount = Math.min(5, Math.max(1, root.themesCount))
-            return Math.min(root.width - 48, Math.max(540, (tCount * 196) + ((tCount - 1) * 12) + 28))
+            return Math.min(root.width - 48, Math.max(Appearance.powerMenuHeightTheme * 2.14, (tCount * 196) + ((tCount - 1) * 12) + 28))
         }
         // wallpaper view
         var wCount = Math.min(5, Math.max(1, root.wallpapersCount))
-        return Math.min(root.width - 48, Math.max(540, (wCount * 196) + ((wCount - 1) * 12) + 28))
+        return Math.min(root.width - 48, Math.max(Appearance.powerMenuHeightTheme * 2.14, (wCount * 196) + ((wCount - 1) * 12) + 28))
     }
 
     // Dynamic target height: 136 for power, 196 for 16:9 wallpaper list, 252 for theme list
-    readonly property real targetHeight: (root.currentView === "power") ? 136 : ((root.currentView === "wallpaper") ? 196 : 252)
+    readonly property real targetHeight: (root.currentView === "power")
+        ? Appearance.powerMenuHeightPower
+        : ((root.currentView === "wallpaper") ? Appearance.powerMenuHeightWallpaper : Appearance.powerMenuHeightTheme)
 
     // Keep window mapped while closing animation completes
     visible: root.isOpen || closeAnim.running
@@ -693,17 +695,17 @@ PanelWindow {
                             spacing: 5
 
                             Text {
-                                text: "󰐥"
-                                font.family: Theme.fontFamily
+                                text: Icons.power
+                                font.family: Icons.effectiveFont(text)
                                 font.pixelSize: 12
                                 color: (root.currentView === "power") ? Theme.darker_background : Theme.foreground
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                             Text {
                                 text: "Session"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 11
-                                font.weight: (root.currentView === "power") ? Font.Bold : Font.Normal
+                                font.bold: (root.currentView === "power") 
                                 color: (root.currentView === "power") ? Theme.darker_background : Theme.foreground
                                 anchors.verticalCenter: parent.verticalCenter
                             }
@@ -734,7 +736,7 @@ PanelWindow {
 
                         Behavior on color {
                             enabled: root.viewTransitionsEnabled
-                            ColorAnimation { duration: 150 }
+                            ColorAnimation { duration: Appearance.animDurationNormal }
                         }
 
                         Row {
@@ -743,17 +745,17 @@ PanelWindow {
                             spacing: 5
 
                             Text {
-                                text: "󰔎"
-                                font.family: Theme.fontFamily
+                                text: Icons.palette
+                                font.family: Icons.effectiveFont(text)
                                 font.pixelSize: 12
                                 color: (root.currentView === "theme") ? Theme.darker_background : Theme.foreground
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                             Text {
                                 text: "Themes"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 11
-                                font.weight: (root.currentView === "theme") ? Font.Bold : Font.Normal
+                                font.bold: (root.currentView === "theme") 
                                 color: (root.currentView === "theme") ? Theme.darker_background : Theme.foreground
                                 anchors.verticalCenter: parent.verticalCenter
                             }
@@ -787,7 +789,7 @@ PanelWindow {
 
                         Behavior on color {
                             enabled: root.viewTransitionsEnabled
-                            ColorAnimation { duration: 150 }
+                            ColorAnimation { duration: Appearance.animDurationNormal }
                         }
 
                         Row {
@@ -796,17 +798,17 @@ PanelWindow {
                             spacing: 5
 
                             Text {
-                                text: "󰸉"
-                                font.family: Theme.fontFamily
+                                text: Icons.wallpaper
+                                font.family: Icons.effectiveFont(text)
                                 font.pixelSize: 12
                                 color: (root.currentView === "wallpaper") ? Theme.darker_background : Theme.foreground
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                             Text {
                                 text: "Wallpapers"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 11
-                                font.weight: (root.currentView === "wallpaper") ? Font.Bold : Font.Normal
+                                font.bold: (root.currentView === "wallpaper") 
                                 color: (root.currentView === "wallpaper") ? Theme.darker_background : Theme.foreground
                                 anchors.verticalCenter: parent.verticalCenter
                             }
@@ -860,7 +862,7 @@ PanelWindow {
                             return ""
                         }
                     }
-                    font.family: Theme.fontFamily
+                    font.family: Fonts.uiFont
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                     color: {
@@ -984,7 +986,7 @@ PanelWindow {
                                     Text {
                                         anchors.centerIn: parent
                                         text: actionBtn.modelData.icon
-                                        font.family: Theme.fontFamily
+                                        font.family: Icons.effectiveFont(actionBtn.modelData.icon)
                                         font.pixelSize: 28
                                         color: actionBtn.isActive
                                             ? Theme.darker_background
@@ -1044,7 +1046,7 @@ PanelWindow {
                             Rectangle {
                                 id: cardBg
                                 anchors.fill: parent
-                                radius: 14
+                                radius: Appearance.powerMenuRadiusActive
 
                                 color: cardItem.isSelected
                                     ? Theme.withAlpha(Theme.lighter_background, 0.95)
@@ -1110,7 +1112,7 @@ PanelWindow {
                                         Text {
                                             anchors.centerIn: parent
                                             text: "󰸉"
-                                            font.family: Theme.fontFamily
+                                            font.family: Icons.effectiveFont("󰸉")
                                             font.pixelSize: 28
                                             color: Theme.muted
                                         }
@@ -1122,7 +1124,7 @@ PanelWindow {
                                     id: topMask
                                     width: imgContainer.width
                                     height: imgContainer.height + 20
-                                    radius: 13
+                                    radius: Appearance.powerMenuRadiusActive - 1
                                     color: "black"
                                     layer.enabled: true
                                     visible: false
@@ -1147,9 +1149,9 @@ PanelWindow {
                                     Text {
                                         anchors.centerIn: parent
                                         text: cardItem.modelData.name
-                                        font.family: Theme.fontFamily
+                                        font.family: Fonts.uiFont
                                         font.pixelSize: 12
-                                        font.weight: cardItem.isSelected ? Font.Bold : Font.DemiBold
+                                        font.weight: cardItem.isSelected  ? Font.Bold : Font.DemiBold
                                         color: cardItem.isSelected
                                             ? cardItem.themeAccent
                                             : Theme.foreground
@@ -1237,7 +1239,7 @@ PanelWindow {
                             Rectangle {
                                 id: wallCardBg
                                 anchors.fill: parent
-                                radius: 14
+                                radius: Appearance.powerMenuRadiusActive
                                 color: wallCardItem.isSelected
                                     ? Theme.withAlpha(Theme.lighter_background, 0.95)
                                     : (wallCardMouse.containsMouse
@@ -1251,7 +1253,7 @@ PanelWindow {
                                 id: wallMask
                                 anchors.fill: parent
                                 anchors.margins: 1
-                                radius: 13
+                                radius: Appearance.powerMenuRadiusActive - 1
                                 color: "black"
                                 layer.enabled: true
                                 visible: false
@@ -1284,7 +1286,7 @@ PanelWindow {
                                 Text {
                                     anchors.centerIn: parent
                                     text: "󰸉"
-                                    font.family: Theme.fontFamily
+                                    font.family: Icons.effectiveFont("󰸉")
                                     font.pixelSize: 32
                                     color: Theme.muted
                                 }
@@ -1293,7 +1295,7 @@ PanelWindow {
                             // 4. Border Overlay rendered on top so corner anti-aliasing is crisp
                             Rectangle {
                                 anchors.fill: parent
-                                radius: 14
+                                radius: Appearance.powerMenuRadiusActive
                                 color: "transparent"
                                 border.color: wallCardItem.isSelected
                                     ? Theme.accent

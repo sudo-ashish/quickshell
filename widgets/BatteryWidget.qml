@@ -60,7 +60,7 @@ Item {
 
                     Text {
                         text: root.batteryService.icon
-                        font.family: Theme.fontFamily
+                        font.family: Icons.effectiveFont(text)
                         font.pixelSize: 30
                         color: {
                             if (root.batteryService.isCharging) return Theme.accent
@@ -77,15 +77,15 @@ Item {
 
                         Text {
                             text: "Battery"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeLarge
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeLarge
                             font.bold: true
                             color: Theme.foreground
                         }
 
                         Text {
                             text: root.batteryService.statusDisplay
-                            font.family: Theme.fontFamily
+                            font.family: Fonts.uiFont
                             font.pixelSize: 10
                             font.bold: true
                             color: root.batteryService.isCharging ? Theme.accent : Theme.muted
@@ -97,7 +97,7 @@ Item {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.batteryService.capacity + "%"
-                    font.family: Theme.fontFamily
+                    font.family: Fonts.monoFont
                     font.pixelSize: 28
                     font.bold: true
                     color: Theme.foreground
@@ -108,7 +108,7 @@ Item {
             Rectangle {
                 width: parent.width
                 height: 8
-                radius: 4
+                radius: Appearance.radiusSmall
                 color: Theme.selection
 
                 Rectangle {
@@ -147,8 +147,8 @@ Item {
                             anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
                             text: "Battery size"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             color: Theme.muted
                         }
 
@@ -156,8 +156,8 @@ Item {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.batteryService.batterySize
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.monoFont
+                            font.pixelSize: Fonts.sizeSmall
                             font.bold: true
                             color: Theme.foreground
                         }
@@ -172,8 +172,8 @@ Item {
                             anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
                             text: "Charge cycles"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             color: Theme.muted
                         }
 
@@ -181,8 +181,8 @@ Item {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.batteryService.cycleCount
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.monoFont
+                            font.pixelSize: Fonts.sizeSmall
                             font.bold: true
                             color: Theme.foreground
                         }
@@ -203,8 +203,8 @@ Item {
                             anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.batteryService.timeLabel
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             color: Theme.muted
                         }
 
@@ -212,8 +212,8 @@ Item {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.batteryService.timeToFull
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.monoFont
+                            font.pixelSize: Fonts.sizeSmall
                             font.bold: true
                             color: Theme.foreground
                         }
@@ -228,8 +228,8 @@ Item {
                             anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
                             text: "Charging"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             color: Theme.muted
                         }
 
@@ -237,8 +237,8 @@ Item {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.batteryService.chargingRate
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.monoFont
+                            font.pixelSize: Fonts.sizeSmall
                             font.bold: true
                             color: Theme.foreground
                         }
@@ -256,7 +256,7 @@ Item {
             // Power Profile Section Header
             Text {
                 text: "POWER PROFILE"
-                font.family: Theme.fontFamily
+                font.family: Fonts.uiFont
                 font.pixelSize: 10
                 font.bold: true
                 color: Theme.muted
@@ -281,7 +281,7 @@ Item {
                         required property var modelData
                         width: (parent.width - 16) / 3
                         height: 38
-                        radius: Theme.radiusSmall
+                        radius: Appearance.radiusSmall
 
                         readonly property bool isActive: root.powerService.activeProfile === modelData.id
 
@@ -300,17 +300,17 @@ Item {
 
                             Text {
                                 text: profBtn.modelData.icon
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeRegular
+                                font.family: Icons.effectiveFont(profBtn.modelData.icon)
+                                font.pixelSize: Fonts.sizeRegular
                                 color: profBtn.isActive ? Theme.accent : Theme.muted
                                 anchors.verticalCenter: parent.verticalCenter
                             }
 
                             Text {
                                 text: profBtn.modelData.label
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 11
-                                font.bold: profBtn.isActive
+                                font.bold: profBtn.isActive 
                                 color: profBtn.isActive ? Theme.accent : Theme.foreground
                                 anchors.verticalCenter: parent.verticalCenter
                             }

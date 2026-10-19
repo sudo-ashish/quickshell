@@ -63,7 +63,7 @@ PanelWindow {
         opacity: root.isOpen ? 1.0 : 0.0
 
         Behavior on opacity {
-            NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: Appearance.animDurationNormal; easing.type: Easing.OutCubic }
         }
 
         MouseArea {
@@ -80,19 +80,19 @@ PanelWindow {
         width: 380
         height: 190
         anchors.centerIn: parent
-        radius: Theme.radiusLarge
+        radius: Appearance.dialogRadius
         color: Theme.withAlpha(Theme.background, Theme.baseOpacity)
         border.color: Theme.selection
-        border.width: 1
+        border.width: Appearance.borderWidthThin
 
         opacity: root.isOpen ? 1.0 : 0.0
         scale: root.isOpen ? 1.0 : 0.95
 
         Behavior on opacity {
-            NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: Appearance.animDurationNormal; easing.type: Easing.OutCubic }
         }
         Behavior on scale {
-            NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: Appearance.animDurationNormal; easing.type: Easing.OutCubic }
         }
 
         // Prevent clicks on the card from falling through to the backdrop
@@ -104,28 +104,28 @@ PanelWindow {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 22
-            spacing: 16
+            anchors.margins: Appearance.paddingXl + 2 // 22px
+            spacing: Appearance.spacingXl
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 16
+                spacing: Appearance.spacingXl
 
                 // Action Icon Badge
                 Rectangle {
-                    width: 48
-                    height: 48
-                    radius: 24
+                    width: Appearance.osdHeight
+                    height: Appearance.osdHeight
+                    radius: Appearance.radiusPill
                     readonly property bool isUrgent: root.powerService && root.powerService.confirmAction === "poweroff"
                     color: Theme.darker_background
                     border.color: isUrgent ? Theme.red : Theme.yellow
-                    border.width: 1
+                    border.width: Appearance.borderWidthThin
 
                     Text {
                         anchors.centerIn: parent
                         text: root.powerService ? root.powerService.confirmIcon : ""
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 22
+                        font.family: Icons.effectiveFont(text)
+                        font.pixelSize: Fonts.sizeTitle
                         color: parent.isUrgent ? Theme.red : Theme.yellow
                     }
                 }
@@ -133,13 +133,13 @@ PanelWindow {
                 // Title and prompt text
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 4
+                    spacing: Appearance.spacingSmall
 
                     Text {
                         Layout.fillWidth: true
                         text: root.powerService ? root.powerService.confirmTitle : ""
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeLarge
+                        font.family: Fonts.uiFont
+                        font.pixelSize: Fonts.sizeLarge
                         font.bold: true
                         color: Theme.foreground
                     }
@@ -147,8 +147,8 @@ PanelWindow {
                     Text {
                         Layout.fillWidth: true
                         text: root.powerService ? root.powerService.confirmMessage : ""
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeSmall
+                        font.family: Fonts.uiFont
+                        font.pixelSize: Fonts.sizeSmall
                         color: Theme.muted
                         wrapMode: Text.WordWrap
                     }
@@ -160,34 +160,34 @@ PanelWindow {
             // Action Buttons
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 12
+                spacing: Appearance.spacingLarge
 
                 // Cancel Button
                 Rectangle {
                     id: cancelBtn
                     Layout.fillWidth: true
-                    height: 38
-                    radius: Theme.radiusSmall
+                    height: Appearance.popupHeaderHeight
+                    radius: Appearance.buttonRadius
                     color: cancelMouse.containsMouse ? Theme.lighter_background : Theme.dark_background
                     border.color: cancelMouse.containsMouse ? Theme.accent : Theme.selection
-                    border.width: 1
+                    border.width: Appearance.borderWidthThin
 
                     Row {
                         anchors.centerIn: parent
-                        spacing: 6
+                        spacing: Appearance.spacingMedium - 2 // 6px
 
                         Text {
-                            text: "󰅖"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeRegular
+                            text: Icons.close
+                            font.family: Icons.effectiveFont(text)
+                            font.pixelSize: Fonts.sizeRegular
                             color: cancelMouse.containsMouse ? Theme.foreground : Theme.muted
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
                         Text {
                             text: "Cancel"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             font.bold: true
                             color: cancelMouse.containsMouse ? Theme.foreground : Theme.muted
                             anchors.verticalCenter: parent.verticalCenter
@@ -209,8 +209,8 @@ PanelWindow {
                 Rectangle {
                     id: confirmBtn
                     Layout.fillWidth: true
-                    height: 38
-                    radius: Theme.radiusSmall
+                    height: Appearance.popupHeaderHeight
+                    radius: Appearance.buttonRadius
                     readonly property bool isUrgent: root.powerService && root.powerService.confirmAction === "poweroff"
                     readonly property color themeColor: isUrgent ? Theme.red : Theme.yellow
 
@@ -219,24 +219,24 @@ PanelWindow {
                         return Theme.selection
                     }
                     border.color: themeColor
-                    border.width: 1
+                    border.width: Appearance.borderWidthThin
 
                     Row {
                         anchors.centerIn: parent
-                        spacing: 6
+                        spacing: Appearance.spacingMedium - 2 // 6px
 
                         Text {
                             text: root.powerService ? root.powerService.confirmIcon : ""
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeRegular
+                            font.family: Icons.effectiveFont(text)
+                            font.pixelSize: Fonts.sizeRegular
                             color: confirmMouse.containsMouse ? Theme.darker_background : confirmBtn.themeColor
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
                         Text {
                             text: root.powerService && root.powerService.confirmAction === "poweroff" ? "Power Off" : "Restart"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             font.bold: true
                             color: confirmMouse.containsMouse ? Theme.darker_background : Theme.foreground
                             anchors.verticalCenter: parent.verticalCenter

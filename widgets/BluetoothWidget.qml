@@ -78,7 +78,7 @@ Item {
 
                 Text {
                     text: root.service.connectedDevices.length > 0 ? "󰂱" : (root.service.bluetoothEnabled ? "󰂯" : "󰂲")
-                    font.family: Theme.fontFamily
+                    font.family: Icons.effectiveFont(text)
                     font.pixelSize: 22
                     color: root.service.bluetoothEnabled ? Theme.accent : Theme.muted
                     opacity: root.service.bluetoothEnabled ? 1.0 : 0.6
@@ -92,7 +92,7 @@ Item {
 
                     Text {
                         text: "Bluetooth"
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 14
                         font.bold: true
                         color: Theme.foreground
@@ -100,7 +100,7 @@ Item {
 
                     Text {
                         text: root.service.heroSubtitle
-                        font.family: Theme.fontFamily
+                        font.family: Fonts.uiFont
                         font.pixelSize: 9
                         font.bold: true
                         color: Theme.muted
@@ -130,7 +130,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "Turn Bluetooth on to scan"
-                    font.family: Theme.fontFamily
+                    font.family: Fonts.uiFont
                     font.pixelSize: 11
                     color: Theme.muted
                 }
@@ -160,7 +160,7 @@ Item {
 
                             Text {
                                 text: "CONNECTED"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 10
                                 font.bold: true
                                 color: Theme.muted
@@ -173,7 +173,7 @@ Item {
                                     required property var modelData
                                     width: parent.width
                                     height: 44
-                                    radius: 6
+                                    radius: Appearance.radiusSmall
                                     color: Theme.selection
                                     border.color: Theme.selection
                                     border.width: 1
@@ -186,7 +186,7 @@ Item {
 
                                         Text {
                                             text: "󰂱"
-                                            font.family: Theme.fontFamily
+                                            font.family: Icons.effectiveFont("󰂱")
                                             font.pixelSize: 16
                                             color: Theme.accent
                                             Layout.alignment: Qt.AlignVCenter
@@ -199,7 +199,7 @@ Item {
 
                                             Text {
                                                 text: modelData.name || modelData.mac
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 11
                                                 font.bold: true
                                                 color: Theme.foreground
@@ -209,7 +209,7 @@ Item {
 
                                             Text {
                                                 text: modelData.battery || "Connected"
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 9
                                                 color: Theme.muted
                                             }
@@ -220,7 +220,7 @@ Item {
                                             Layout.preferredWidth: 24
                                             Layout.preferredHeight: 24
                                             Layout.alignment: Qt.AlignVCenter
-                                            radius: 4
+                                            radius: Appearance.radiusSmall
                                             color: disMouse.containsMouse ? Theme.darker_background : Theme.dark_background
                                             border.color: disMouse.containsMouse ? Theme.red : Theme.selection
                                             border.width: 1
@@ -228,7 +228,7 @@ Item {
                                             Text {
                                                 anchors.centerIn: parent
                                                 text: "󰅙"
-                                                font.family: Theme.fontFamily
+                                                font.family: Icons.effectiveFont("󰅙")
                                                 font.pixelSize: 12
                                                 color: disMouse.containsMouse ? Theme.red : Theme.muted
                                             }
@@ -262,7 +262,7 @@ Item {
 
                             Text {
                                 text: "SAVED DEVICES"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 10
                                 font.bold: true
                                 color: Theme.muted
@@ -279,7 +279,7 @@ Item {
 
                                     width: parent.width
                                     height: 44
-                                    radius: 6
+                                    radius: Appearance.radiusSmall
                                     color: isConnecting ? Theme.selection : (pMouse.containsMouse ? Theme.lighter_background : "transparent")
                                     border.color: isConnecting ? Theme.selection : "transparent"
                                     border.width: isConnecting ? 1 : 0
@@ -292,7 +292,7 @@ Item {
 
                                         Text {
                                             text: "󰂯"
-                                            font.family: Theme.fontFamily
+                                            font.family: Icons.effectiveFont("󰂯")
                                             font.pixelSize: 14
                                             color: isConnecting ? Theme.accent : Theme.muted
                                             Layout.alignment: Qt.AlignVCenter
@@ -305,7 +305,7 @@ Item {
 
                                             Text {
                                                 text: modelData.name || modelData.mac
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 11
                                                 font.bold: true
                                                 color: Theme.foreground
@@ -315,7 +315,7 @@ Item {
 
                                             Text {
                                                 text: pairedRow.isConnecting ? "Connecting..." : (pairedRow.hasError ? root.service.actionErrorMessage : "Offline")
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 9
                                                 color: pairedRow.isConnecting ? Theme.accent : (pairedRow.hasError ? Theme.red : Theme.dark_foreground)
                                             }
@@ -327,7 +327,7 @@ Item {
                                             Layout.preferredWidth: pairedRow.isConnecting ? 80 : 58
                                             Layout.preferredHeight: 24
                                             Layout.alignment: Qt.AlignVCenter
-                                            radius: 4
+                                            radius: Appearance.radiusSmall
                                             color: pairedRow.isConnecting ? Theme.selection : (cMouse.containsMouse ? Theme.selection : Theme.dark_background)
                                             border.color: pairedRow.isConnecting ? Theme.accent : (cMouse.containsMouse ? Theme.accent : Theme.selection)
                                             border.width: 1
@@ -335,7 +335,7 @@ Item {
                                             Text {
                                                 anchors.centerIn: parent
                                                 text: pairedRow.isConnecting ? "Connecting…" : "Connect"
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 10
                                                 font.bold: true
                                                 color: (pairedRow.isConnecting || cMouse.containsMouse) ? Theme.accent : Theme.foreground
@@ -357,7 +357,7 @@ Item {
                                             Layout.preferredWidth: 24
                                             Layout.preferredHeight: 24
                                             Layout.alignment: Qt.AlignVCenter
-                                            radius: 4
+                                            radius: Appearance.radiusSmall
                                             color: forgetMouse.containsMouse ? Theme.darker_background : "transparent"
                                             border.color: forgetMouse.containsMouse ? Theme.red : "transparent"
                                             border.width: 1
@@ -365,7 +365,7 @@ Item {
                                             Text {
                                                 anchors.centerIn: parent
                                                 text: "󰅙"
-                                                font.family: Theme.fontFamily
+                                                font.family: Icons.effectiveFont("󰅙")
                                                 font.pixelSize: 12
                                                 color: forgetMouse.containsMouse ? Theme.red : Theme.dark_foreground
                                             }
@@ -409,7 +409,7 @@ Item {
 
                             Text {
                                 text: "AVAILABLE DEVICES"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 10
                                 font.bold: true
                                 color: Theme.muted
@@ -427,7 +427,7 @@ Item {
 
                                     width: parent.width
                                     height: (isPairing || isConnecting || hasError) ? 44 : 36
-                                    radius: 6
+                                    radius: Appearance.radiusSmall
                                     color: (isPairing || isConnecting) ? Theme.selection : (aMouse.containsMouse ? Theme.lighter_background : "transparent")
                                     border.color: (isPairing || isConnecting) ? Theme.selection : "transparent"
                                     border.width: (isPairing || isConnecting) ? 1 : 0
@@ -440,7 +440,7 @@ Item {
 
                                         Text {
                                             text: "󰂯"
-                                            font.family: Theme.fontFamily
+                                            font.family: Icons.effectiveFont("󰂯")
                                             font.pixelSize: 14
                                             color: (isPairing || isConnecting) ? Theme.accent : Theme.dark_foreground
                                             Layout.alignment: Qt.AlignVCenter
@@ -453,7 +453,7 @@ Item {
 
                                             Text {
                                                 text: modelData.name || modelData.mac
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 11
                                                 color: Theme.foreground
                                                 elide: Text.ElideRight
@@ -463,7 +463,7 @@ Item {
                                             Text {
                                                 visible: availRow.isPairing || availRow.isConnecting || availRow.hasError
                                                 text: availRow.isPairing ? "Pairing..." : (availRow.isConnecting ? "Connecting..." : (availRow.hasError ? root.service.actionErrorMessage : ""))
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 9
                                                 color: (availRow.isPairing || availRow.isConnecting) ? Theme.accent : Theme.red
                                             }
@@ -474,7 +474,7 @@ Item {
                                             Layout.preferredWidth: (availRow.isPairing || availRow.isConnecting) ? 72 : 48
                                             Layout.preferredHeight: 24
                                             Layout.alignment: Qt.AlignVCenter
-                                            radius: 4
+                                            radius: Appearance.radiusSmall
                                             color: (availRow.isPairing || availRow.isConnecting) ? Theme.selection : (pairMouse.containsMouse ? Theme.selection : Theme.dark_background)
                                             border.color: (availRow.isPairing || availRow.isConnecting) ? Theme.accent : (pairMouse.containsMouse ? Theme.accent : Theme.selection)
                                             border.width: 1
@@ -482,7 +482,7 @@ Item {
                                             Text {
                                                 anchors.centerIn: parent
                                                 text: availRow.isPairing ? "Pairing…" : (availRow.isConnecting ? "Connecting…" : "Pair")
-                                                font.family: Theme.fontFamily
+                                                font.family: Fonts.uiFont
                                                 font.pixelSize: 10
                                                 font.bold: true
                                                 color: (availRow.isPairing || availRow.isConnecting || pairMouse.containsMouse) ? Theme.accent : Theme.foreground
@@ -521,7 +521,7 @@ Item {
                             Text {
                                 anchors.centerIn: parent
                                 text: "Scanning for devices…"
-                                font.family: Theme.fontFamily
+                                font.family: Fonts.uiFont
                                 font.pixelSize: 11
                                 color: Theme.dark_foreground
                             }

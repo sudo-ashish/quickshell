@@ -59,19 +59,19 @@ PanelWindow {
     // Calculate card position relative to anchorItem
     readonly property real cardX: {
         var _ = root.open // reactively recompute whenever popup opens
-        if (!root.anchorItem) return 8
+        if (!root.anchorItem) return Appearance.popupMargin
         var pt = root.anchorItem.mapToItem(null, 0, 0)
         var desiredX = pt.x + (root.anchorItem.width / 2) - (root.contentWidth / 2)
-        var margin = 8
+        var margin = Appearance.popupMargin
         var maxRight = root.width - root.contentWidth - margin
         return Math.max(margin, Math.min(desiredX, maxRight))
     }
 
     readonly property real cardY: {
         var _ = root.open // reactively recompute whenever popup opens
-        if (!root.anchorItem) return Theme.barHeight + 6
+        if (!root.anchorItem) return Appearance.barHeight + 6
         var pt = root.anchorItem.mapToItem(null, 0, 0)
-        return Math.max(Theme.barHeight + 6, pt.y + root.anchorItem.height + 6)
+        return Math.max(Appearance.barHeight + 6, pt.y + root.anchorItem.height + 6)
     }
 
     // Outer Card Container
@@ -82,9 +82,9 @@ PanelWindow {
         width: root.contentWidth
         height: root.contentHeight
         color: Theme.withAlpha(Theme.dark_background, Theme.baseOpacity)
-        border.color: Theme.selection
-        border.width: 1
-        radius: Theme.radiusMedium
+        border.color: "transparent"
+        border.width: Appearance.borderWidthNone
+        radius: Appearance.popupRadius
 
         // Prevent clicks inside the card from closing the popup
         MouseArea {
@@ -100,37 +100,37 @@ PanelWindow {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            height: root.showDefaultHeader ? 38 : 0
+            height: root.showDefaultHeader ? Appearance.popupHeaderHeight : 0
 
             // Bottom border of header
             Rectangle {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                height: 1
+                height: Appearance.borderWidthThin
                 color: Theme.selection
             }
 
             Row {
                 anchors.left: parent.left
-                anchors.leftMargin: 12
+                anchors.leftMargin: Appearance.spacingLarge
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 8
+                spacing: Appearance.spacingMedium
 
                 Text {
                     visible: root.icon.length > 0
                     text: root.icon
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
+                    font.family: Icons.effectiveFont(root.icon)
+                    font.pixelSize: Fonts.sizeMedium
                     color: Theme.accent
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
                 Text {
                     text: root.title
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
+                    font.family: Fonts.uiFont
+                    font.pixelSize: Fonts.sizeMedium
+                    font.weight: Fonts.weightBold
                     color: Theme.foreground
                     anchors.verticalCenter: parent.verticalCenter
                 }
@@ -144,7 +144,7 @@ PanelWindow {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.margins: root.showDefaultHeader ? 10 : 12
+            anchors.margins: root.showDefaultHeader ? Appearance.paddingMedium : Appearance.popupPadding
         }
     }
 }

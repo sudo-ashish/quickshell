@@ -257,12 +257,12 @@ Item {
             id: card
             width: 420
             implicitHeight: cardLayout.implicitHeight + 40
-            radius: Theme.radiusLarge
+            radius: Appearance.cardRadius
             anchors.centerIn: parent
             anchors.horizontalCenterOffset: root.shakeOffset
             color: Theme.withAlpha(Theme.background, Theme.elevatedOpacity)
             border.color: root.errorFlash ? Theme.red : (passwordInput.activeFocus ? Theme.accent : Theme.selection)
-            border.width: 1
+            border.width: Appearance.borderWidthThin
 
             // Consume clicks inside card so scrim doesn't trigger
             MouseArea {
@@ -292,40 +292,40 @@ Item {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.margins: 20
-                spacing: 14
+                anchors.margins: Appearance.paddingXl
+                spacing: Appearance.spacingLarge + 2
 
                 // Header row with Icon and Label
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 12
+                    spacing: Appearance.spacingLarge
 
                     Rectangle {
                         width: 36
                         height: 36
-                        radius: Theme.radiusMedium
+                        radius: Appearance.radiusMedium
                         color: root.errorFlash ? Theme.red : Theme.selection
 
                         Text {
                             anchors.centerIn: parent
-                            text: "󰌾"
+                            text: Icons.lock
                             color: root.errorFlash ? Theme.bright_red : Theme.accent
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 18
+                            font.family: Icons.effectiveFont(text)
+                            font.pixelSize: Fonts.sizeLarge + 2
                         }
                     }
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: Appearance.spacingXs
 
                         Text {
                             Layout.fillWidth: true
                             text: root.authorizationLabel(root.currentMessage)
                             color: Theme.foreground
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeRegular
-                            font.bold: true
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeRegular
+                            font.weight: Fonts.weightBold
                             elide: Text.ElideRight
                         }
 
@@ -333,8 +333,8 @@ Item {
                             Layout.fillWidth: true
                             text: root.currentSupplementary.length > 0 ? root.currentSupplementary : (root.currentMessage.length > 0 ? root.currentMessage : "Privileged action requires authentication")
                             color: root.errorFlash ? Theme.red : Theme.muted
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             elide: Text.ElideRight
                         }
                     }
@@ -344,22 +344,22 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     height: 44
-                    radius: Theme.radiusMedium
+                    radius: Appearance.radiusMedium
                     color: Theme.withAlpha(Theme.darker_background, Theme.layerOpacity)
                     border.color: root.errorFlash ? Theme.red : (passwordInput.activeFocus ? Theme.accent : Theme.selection)
-                    border.width: 1
+                    border.width: Appearance.borderWidthThin
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 12
-                        anchors.rightMargin: 12
-                        spacing: 8
+                        anchors.leftMargin: Appearance.spacingLarge
+                        anchors.rightMargin: Appearance.spacingLarge
+                        spacing: Appearance.spacingMedium
 
                         Text {
-                            text: "󰌿"
+                            text: Icons.unlock
                             color: root.errorFlash ? Theme.red : (passwordInput.activeFocus ? Theme.accent : Theme.muted)
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 16
+                            font.family: Icons.effectiveFont(text)
+                            font.pixelSize: Fonts.sizeLarge
                             Layout.alignment: Qt.AlignVCenter
                         }
 
@@ -375,8 +375,8 @@ Item {
                                 clip: true
                                 selectionColor: Theme.selection
                                 selectedTextColor: Theme.bright_foreground
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeRegular
+                                font.family: Fonts.uiFont
+                                font.pixelSize: Fonts.sizeRegular
                                 echoMode: root.responseVisible ? TextInput.Normal : TextInput.Password
                                 passwordCharacter: "•"
                                 color: root.errorFlash ? Theme.red : Theme.foreground
@@ -403,8 +403,8 @@ Item {
                                 }
                                 color: root.errorFlash ? Theme.red : Theme.muted
                                 opacity: root.errorFlash ? 1 : 0.6
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeRegular
+                                font.family: Fonts.uiFont
+                                font.pixelSize: Fonts.sizeRegular
                                 elide: Text.ElideRight
                                 visible: passwordInput.text.length === 0
                             }
@@ -415,24 +415,24 @@ Item {
                 // Action buttons: Cancel and Authenticate
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 10
+                    spacing: Appearance.spacingMedium + 2
 
                     Item { Layout.fillWidth: true }
 
                     // Cancel button
                     Rectangle {
                         width: 84
-                        height: 32
-                        radius: Theme.radiusMedium
+                        height: Appearance.buttonHeight
+                        radius: Appearance.buttonRadius
                         color: cancelMouse.containsMouse ? Theme.lighter_background : Theme.selection
                         border.color: Theme.selection
-                        border.width: 1
+                        border.width: Appearance.borderWidthThin
 
                         Text {
                             anchors.centerIn: parent
                             text: "Cancel"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
+                            font.family: Fonts.uiFont
+                            font.pixelSize: Fonts.sizeSmall
                             color: Theme.muted
                         }
 
@@ -448,29 +448,29 @@ Item {
                     // Authenticate button
                     Rectangle {
                         width: 110
-                        height: 32
-                        radius: Theme.radiusMedium
+                        height: Appearance.buttonHeight
+                        radius: Appearance.buttonRadius
                         color: authMouse.containsMouse ? Theme.bright_blue : Theme.accent
                         opacity: root.submitted ? 0.6 : 1.0
 
                         Row {
                             anchors.centerIn: parent
-                            spacing: 6
+                            spacing: Appearance.spacingMedium - 2 // 6px
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                text: root.submitted ? "󰑮" : "󰄬"
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 13
+                                text: root.submitted ? Icons.spinner : Icons.check
+                                font.family: Icons.effectiveFont(text)
+                                font.pixelSize: Fonts.sizeRegular
                                 color: Theme.darker_background
                             }
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: root.submitted ? "Checking..." : "Authorize"
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                                font.bold: true
+                                font.family: Fonts.uiFont
+                                font.pixelSize: Fonts.sizeSmall
+                                font.weight: Fonts.weightBold
                                 color: Theme.darker_background
                             }
                         }
